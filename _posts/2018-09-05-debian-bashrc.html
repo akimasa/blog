@@ -1,0 +1,32 @@
+---
+layout: post
+status: publish
+published: true
+title: Debianの.bashrcは対話的でないと読み込まれない
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 329
+wordpress_url: https://blog.akimasa.jp/?p=329
+date: '2018-09-05 20:32:32 +0900'
+date_gmt: '2018-09-05 11:32:32 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>ふと、.bashrcを見てみたら、次のような記載があった。</p>
+<pre># ~/.bashrc: executed by bash(1) for non-login shells.
+# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
+# for examples
+
+# If not running interactively, don't do anything
+case $- in
+    *i*) ;;
+      *) return;;
+esac</pre>
+<p>環境変数の設定をするためにcrontabでスクリプトを走らせるときに.bashrcを読み込んでいたが、無駄なことをしていたようだ。</p>
