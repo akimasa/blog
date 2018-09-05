@@ -1,0 +1,69 @@
+---
+layout: post
+status: publish
+published: true
+title: cdebootstrapを実行後にすること
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 121
+wordpress_url: https://blog.akimasa.jp/?p=121
+date: '2017-05-29 17:44:23 +0900'
+date_gmt: '2017-05-29 08:44:23 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>個人用にメモっておく。</p>
+<ul>
+<li>gai.confでipv4が優先されるようにする。(不要かも)</li>
+<li>passwdでrootのパスワードを設定する</li>
+<li>locales</li>
+</ul>
+<pre>apt-get install localesdpkg-reconfigure locales</pre>
+<ul>
+<li>hostname</li>
+</ul>
+<pre>apt-get install dbus
+hostnamectl set-hostname hogehoge</pre>
+<ul>
+<li>timezone</li>
+</ul>
+<pre>dpkg-reconfigure tzdata</pre>
+<ul>
+<li>/etc/apt/sources.list</li>
+</ul>
+<pre>deb http://ftp.jp.debian.org/debian jessie main
+deb http://security.debian.org/ jessie/updates main</pre>
+<ul>
+<li>ntp</li>
+</ul>
+<pre>timedatectl set-ntp true
+vim.tiny /etc/systemd/timesyncd.conf
+Servers=ntp.nict.jp</pre>
+<ul>
+<li>fake-hwclock</li>
+<li>cpufrequtils</li>
+<li>/etc/network/interfaces</li>
+</ul>
+<pre class="screen">auto eth0
+iface eth0 inet dhcp</pre>
+<ul>
+<li>/etc/fstab</li>
+</ul>
+<pre>/dev/sda1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ext4&nbsp;&nbsp;&nbsp; defaults&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1
+/dev/sda2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; none&nbsp;&nbsp;&nbsp; swap&nbsp;&nbsp;&nbsp; defaults&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0
+/dev/mmcblk0p1&nbsp; /boot&nbsp;&nbsp; vfat&nbsp;&nbsp;&nbsp; defaults&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2</pre>
+<ul>
+<li>openssh-server</li>
+<li>rpi-update</li>
+<li>cat /boot/cmdline.txt
+<pre>root=/dev/sda1 rootfstype=ext4 rootwait quiet rw</pre>
+</li>
+<li>/boot/config.txtはなくてもよさそう</li>
+</ul>

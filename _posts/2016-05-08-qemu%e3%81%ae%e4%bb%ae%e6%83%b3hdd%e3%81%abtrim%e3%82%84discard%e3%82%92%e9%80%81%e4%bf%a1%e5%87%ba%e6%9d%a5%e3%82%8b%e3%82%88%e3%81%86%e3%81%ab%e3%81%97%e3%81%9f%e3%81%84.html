@@ -1,0 +1,29 @@
+---
+layout: post
+status: publish
+published: true
+title: QEMUの仮想HDDにTrimやDiscardを送信出来るようにしたい
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 55
+wordpress_url: https://blog.akimasa.jp/?p=55
+date: '2016-05-08 21:13:22 +0900'
+date_gmt: '2016-05-08 12:13:22 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><code>-drive file=windows10.raw,format=raw,if=virtio,discard=on</code><br />
+これではだめだった。<br />
+<code><br />
+-drive file=windows10.raw,format=raw,if=none,discard=on,id=hda \<br />
+-device virtio-scsi-pci,id=scsi \<br />
+-device scsi-hd,drive=hda<br />
+</code><br />
+こんな感じで、virtio-scsi-pciを使うと、トリムできるようになる。</p>

@@ -1,0 +1,31 @@
+---
+layout: post
+status: publish
+published: true
+title: Net Radio Archiveのアップデートが面倒
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 28
+wordpress_url: https://blog.akimasa.jp/2015/10/15/20151015223056/
+date: '2015-10-15 22:30:56 +0900'
+date_gmt: '2015-10-15 13:30:56 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>コマンドを結構打たないといけないので面倒。<br />
+次の関数を.bashrcに加えてみた</p>
+<pre>update-net-radio-archive(){
+git pull origin master
+git submodule update --init --recursive
+bundle install --without development test agon
+RAILS_ENV=production bundle exec rake db:migrate
+bundle exec whenever --update-crontab
+}
+</pre>

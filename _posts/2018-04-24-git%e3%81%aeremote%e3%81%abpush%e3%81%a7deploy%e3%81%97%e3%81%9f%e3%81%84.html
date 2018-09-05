@@ -1,0 +1,25 @@
+---
+layout: post
+status: publish
+published: true
+title: gitのremoteにpushでdeployしたい
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 276
+wordpress_url: https://blog.akimasa.jp/?p=276
+date: '2018-04-24 18:24:40 +0900'
+date_gmt: '2018-04-24 09:24:40 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>エラーメッセージ通りに<span class="c">receive.denyCurrentBranch=warnにすればいいかと思ったが、うまくいかず。</span></p>
+<pre>git config receive.denyCurrentBranch updateInstead</pre>
+<p>すれば良いらしい。</p>
+<p><a href="https://qiita.com/takoba/items/8026127469e7359cba2e">https://qiita.com/takoba/items/8026127469e7359cba2e</a></p>

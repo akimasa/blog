@@ -1,0 +1,38 @@
+---
+layout: post
+status: publish
+published: true
+title: IPv6が途切れる問題
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 64
+wordpress_url: https://blog.akimasa.jp/?p=64
+date: '2016-08-07 18:36:27 +0900'
+date_gmt: '2016-08-07 09:36:27 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>IPv6のpingがサスペンドしたり、数時間経つと返って来なくなる問題が発生していた。<br />
+<a href="http://askubuntu.com/questions/460405/ipv6-does-not-work-over-bridge">このページ</a>や<a href="http://qiita.com/nvsofts/items/8429e0915db12a73a4ae">このページ</a>を参考に<code>echo 0 > /sys/class/net/br0/bridge/multicast_snooping</code>を実行したら、現象が再現しなくなった。<br />
+ので、<br />
+/etc/systemd/network/bridge.netdev</p>
+<pre>[Bridge]
+MulticastQuerier=true
+MulticastSnooping=true</pre>
+<p>を追加した。<br />
+これでどうなるか様子見。<br />
+続報がなければ多分良くなっている。<br />
+続報：だめだった。</p>
+<pre>[Bridge]
+MulticastSnooping=false</pre>
+<p>今度はこれで様子見する。パフォーマンスの問題が起こるかもしれないから少し不安だ。<br />
+8/15追記：<br />
+これでもNetwork is unreachableになった。<br />
+何がまずいんだろう&hellip;</p>

@@ -1,0 +1,48 @@
+---
+layout: post
+status: publish
+published: true
+title: Seleniumを触ってみた
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 134
+wordpress_url: https://blog.akimasa.jp/?p=134
+date: '2017-07-23 00:21:22 +0900'
+date_gmt: '2017-07-22 15:21:22 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<pre>choco install selenium-chrome-driver selenium-gecko-driver selenium-edge-driver</pre>
+<p>上記コマンドで、<a href="http://chocolatey.org/">chocolatey</a>を使って必要なドライバを入れた。</p>
+<p><a href="https://chocolatey.org/packages?q=selenium">selenium</a>で検索したら、いろいろドライバが引っかかる。</p>
+<p>そして、<a href="https://www.npmjs.com/package/selenium-webdriver">サンプルコード</a>を動かしてみた</p>
+<div>
+<div>
+<pre>var webdriver = require('selenium-webdriver'),
+By=webdriver.By,
+until=webdriver.until;
+
+var driver = new webdriver.Builder().usingServer("http://localhost:17556/")
+.forBrowser('edge')
+.build();
+
+driver.get('http://www.google.com/ncr');
+driver.findElement(By.name('q')).sendKeys('webdriver');
+driver.findElement(By.name('btnG')).click();
+driver.wait(until.titleIs('webdriver - Google Search'), 1000);
+driver.quit();</pre>
+</div>
+</div>
+<p>Firefox、ChromeはforBrowserの所を書き換えるだけで、うまくいったが、Edgeは上記のようにする必要があった。</p>
+<p>あらかじめSelenium Edge Driverを起動する必要がある。そして、usingServer("url")を間に入れる必要があるみたいだ。</p>
+<p>7/27追記：</p>
+<p>Seleniumのドライバは、npmでも入るようだ。わざわざ、chocolateyで入れる必要はなかったかもしれない。</p>
+<p><a href="https://www.npmjs.com/package/chromedriver">chromedriver</a>, <a href="https://www.npmjs.com/package/geckodriver">geckodriver</a>,&nbsp;<a href="https://www.npmjs.com/package/edgedriver">edgedriver</a>が転がっていた。</p>
+<p>safaridriverは見当たらなかった。Windowsで使う分にはnpmで大丈夫そうだ。</p>

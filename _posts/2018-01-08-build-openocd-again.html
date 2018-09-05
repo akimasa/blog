@@ -1,0 +1,103 @@
+---
+layout: post
+status: publish
+published: true
+title: OpenOCDをビルドする（再び）w/ MSYS2
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 152
+wordpress_url: https://blog.akimasa.jp/?p=152
+date: '2018-01-08 17:28:36 +0900'
+date_gmt: '2018-01-08 08:28:36 +0900'
+categories:
+- 未分類
+tags: []
+comments:
+- id: 81
+  author: OpenOCDをビルドする &#8211; blog.akimasa.jp
+  author_email: ''
+  author_url: https://blog.akimasa.jp/2018/01/07/build-openocd/
+  date: '2018-01-08 18:16:01 +0900'
+  date_gmt: '2018-01-08 09:16:01 +0900'
+  content: "[&#8230;] pacman使えば一発で入るが、安定版なので少し古い。結局、自分でビルドした。 [&#8230;]"
+---
+<p>http://www.playembedded.org/blog/en/2015/10/11/building-openocd-under-windows-using-msys2/</p>
+<p>上記ページを参考に進めている。</p>
+<p>ハマったところがあったら書いていく。</p>
+<p>Bash on Ubuntu on Windowsでビルドすることもできる。<a href="https://blog.akimasa.jp/2018/01/07/build-openocd/">昨日書いた情報</a>が参考になればと思う。</p>
+<h1>ソースを落とせない</h1>
+<p>git cloneでタイムアウトしたみたい。PKGBUILDを編集して、<br />
+<code>source=("${_realname}::git+https://git.code.sf.net/p/openocd/code")</code>のURLを<code>http://repo.or.cz/openocd.git</code>にした。sourceforgeは終わっている&hellip;。ミラーの方が速い。</p>
+<h1>ビルドした</h1>
+<p>https://github.com/Alexpux/MINGW-packages/を適当な場所に落として、mingw-w64-openocd-gitに移動した。前の項にあるように、ソースが落とせなかったらミラーを変えると良い。あとは MINGW_INSTALLS=mingw64 makepkg-mingw -sLで自動的に依存するパッケージが入って、ビルドが走る。</p>
+<p>パッケージファイルが吐き出された。正常かどうかはまだ試していない。</p>
+<h1>少し試した(1/11更新)</h1>
+<p>とりあえず、ドライバを入れて認識させるところまで進んだ。</p>
+<p><img class="alignnone size-full wp-image-163" src="https://blog.akimasa.jp/wp-content/uploads/2018/01/2018-01-11-3.png" alt="" width="575" height="254" /></p>
+<p><a href="http://zadig.akeo.ie/">Zadig</a>を入れて、<strong>libusbK</strong>のドライバを入れると良い。最初は、Alteraのドライバを入れてみたが、意味がなかった。次に、libusb-win32でやってみたが、うまくいかなかった。</p>
+<p>libusb-win32だと、以下のような出力が出ていた。</p>
+<pre>$ openocd -f interface/altera-usb-blaster.cfg
+
+Open On-Chip Debugger 0.10.0+dev-00230-g81a33244d (2018-01-08-18:01)
+Licensed under GNU GPL v2
+For bug reports, read
+ http://openocd.org/doc/doxygen/bugs.html
+Warn : Adapter driver 'usb_blaster' did not declare which transports it allows; assuming legacy JTAG-only
+Info : only one transport option; autoselect 'jtag'
+Info : No lowlevel driver configured, will try them all
+Info : usb blaster interface using libftdi
+Error: unable to open ftdi device: ftdi_usb_reset failed</pre>
+<p>libusbKだと次のような感じだ</p>
+<pre>Open On-Chip Debugger 0.10.0+dev-00230-g81a33244d (2018-01-08-18:01)
+Licensed under GNU GPL v2
+For bug reports, read
+ http://openocd.org/doc/doxygen/bugs.html
+Warn : Adapter driver 'usb_blaster' did not declare which transports it allows; assuming legacy JTAG-only
+Info : only one transport option; autoselect 'jtag'
+Info : No lowlevel driver configured, will try them all
+Info : usb blaster interface using libftdi
+Error: unable to get latency timer
+Info : This adapter doesn't support configurable speed
+Warn : There are no enabled taps. AUTO PROBING MIGHT NOT WORK!!
+Error: JTAG scan chain interrogation failed: all ones
+Error: Check JTAG interface, timings, target power, etc.
+Error: Trying to use configured scan chain anyway...
+Warn : Bypassing JTAG setup events due to errors
+Warn : gdb services need one or more targets defined</pre>
+<p>これの方がうまくいっている気がする。</p>
+<h1>自分の環境では意味なかった</h1>
+<h2>TL;DR</h2>
+<p>nrf51822の書き込みはできない。</p>
+<p>結局、USB Blasterは認識されたみたいだが、JTAGにしか対応していないらしく、SWDが必要なnrf51822の書き込みはできないみたいだった。</p>
+<pre>$ openocd -f interface/altera-usb-blaster.cfg -f target/nrf51.cfg -c 'transport select swd'
+Open On-Chip Debugger 0.10.0+dev-00230-g81a33244d (2018-01-08-18:01)
+Licensed under GNU GPL v2
+For bug reports, read
+ http://openocd.org/doc/doxygen/bugs.html
+Warn : Adapter driver 'usb_blaster' did not declare which transports it allows; assuming legacy JTAG-only
+Info : only one transport option; autoselect 'jtag'
+embedded:startup.tcl:21: Error: newtap: nrf51.cpu missing IR length
+in procedure 'script'
+at file "embedded:startup.tcl", line 60
+in procedure 'swj_newdap' called at file "C:/tools/msys64/mingw64/bin/../share/openocd/scripts/target/nrf51.cfg", line 33
+in procedure 'jtag' called at file "C:/tools/msys64/mingw64/bin/../share/openocd/scripts/target/swj-dp.tcl", line 30
+in procedure 'ocd_bouncer'
+at file "embedded:startup.tcl", line 21</pre>
+<pre>$ openocd -f interface/altera-usb-blaster.cfg -c 'transport select swd' -f target/nrf51.cfg
+Open On-Chip Debugger 0.10.0+dev-00230-g81a33244d (2018-01-08-18:01)
+Licensed under GNU GPL v2
+For bug reports, read
+ http://openocd.org/doc/doxygen/bugs.html
+Warn : Adapter driver 'usb_blaster' did not declare which transports it allows; assuming legacy JTAG-only
+Info : only one transport option; autoselect 'jtag'
+Error: Can't change session's transport after the initial selection was made
+embedded:startup.tcl:21: Error:
+in procedure 'transport'
+in procedure 'ocd_bouncer'
+at file "embedded:startup.tcl", line 21</pre>
+<p>どうやらAltera USB Blaster（によく似た何か）はJTAGにしか対応していないらしく、nrf51822の書き込みには使えないみたいだ。ワイヤをつないで、入力と出力が別のピンになっていて、あれ？となって、コマンドを打ってみたら見事にエラーが出た。</p>

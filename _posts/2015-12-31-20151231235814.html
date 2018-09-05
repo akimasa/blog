@@ -1,0 +1,61 @@
+---
+layout: post
+status: publish
+published: true
+title: LPC810の省電力モードでいろいろハマった
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 18
+wordpress_url: https://blog.akimasa.jp/2015/12/31/20151231235814/
+date: '2015-12-31 23:58:14 +0900'
+date_gmt: '2015-12-31 14:58:14 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><iframe src="//hatenablog-parts.com/embed?url=http%3A%2F%2Fd.hatena.ne.jp%2Fmikkabo%2F20150517%2F1431814560" title="LPC810メモ:deep power-downモード(Self wake-up timerで復帰) - みっかぼログ" class="embed-card embed-webcard" scrolling="no" frameborder="0" style="display: block; width: 100%; height: 155px; max-width: 500px; margin: 10px 0px;"></iframe><cite class="hatena-citation"><a href="http://d.hatena.ne.jp/mikkabo/20150517/1431814560">d.hatena.ne.jp</a></cite><br />
+こちらの記事を参考にしながら、Deep-sleep modeに入ったり、Deep power-down modeに入ったりしてみた。<br />
+<script src="https://gist.github.com/akimasa/9313fdb926cde27bbabf.js"> </script><cite class="hatena-citation"><a href="https://gist.github.com/akimasa/9313fdb926cde27bbabf">gist.github.com</a></cite><br />
+とりあえず、main以外は、こんな感じ。<br />
+<script src="https://gist.github.com/akimasa/847ebca4250dd67d6c6a.js"> </script><cite class="hatena-citation"><a href="https://gist.github.com/akimasa/847ebca4250dd67d6c6a">gist.github.com</a></cite><br />
+最初はこんな感じだったと思う。<br />
+これだと、割り込みでWAKEUPした後、Deep-sleepに入ると、タイマーで復帰しなくなる。</p>
+<pre>	    	// Needed?
+NVIC_ClearPendingIRQ(<a class="keyword" href="http://d.hatena.ne.jp/keyword/WKT">WKT</a>_IRQn);
+NVIC_DisableIRQ(<a class="keyword" href="http://d.hatena.ne.jp/keyword/WKT">WKT</a>_IRQn);
+LPC_PMU->DPDCTRL = 0;
+<a class="keyword" href="http://d.hatena.ne.jp/keyword/SCB">SCB</a>->SCR = 0;
+LPC_<a class="keyword" href="http://d.hatena.ne.jp/keyword/WKT">WKT</a>->CTRL |= (1 << 1) | (1 << 2);
+</pre>
+<p>Needed?のところがまずかったらしい。<br />
+あと、<a href="http://d.hatena.ne.jp/mikkabo/20150517/1431814560">LPC810&#x30E1;&#x30E2;:deep power-down&#x30E2;&#x30FC;&#x30C9;(Self wake-up timer&#x3067;&#x5FA9;&#x5E30;) - &#x307F;&#x3063;&#x304B;&#x307C;&#x30ED;&#x30B0;</a>にある、次のサンプルコードも原因の一つだった。</p>
+<pre>        // DPDFLAG(11)が立ってるので、deep power-downからの復帰である。
+//	同フラグをクリア
+LPC_PMU->PCON &= ~(1 << 11);
+</pre>
+<p>正しくは次の通りだ。</p>
+<pre>LPC_PMU->PCON |= (0x1<<11);
+</pre>
+<p>この修正を加えることで、ピン入力でWAKEUPしたあと、Deep-sleepに入ってもタイマーでちゃんと復帰するようになる。<br />
+しかし、これではDeep power-downに入った後、復帰後Deep-sleepに入ろうとすると一瞬で処理が終わる。<br />
+スリープしていない。<br />
+Needed?の部分は、<a href="https://www.lpcware.com/content/forum/lpc812-wkt-deep-power-down-mode-working-only-once">LPC812, WKT, deep power down mode: working only once... | www.LPCware.com</a>にあったのを持ってきたり、Deep power-downで消し忘れた<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%EC%A5%B8%A5%B9%A5%BF">レジスタ</a>があるのでは無いか疑惑を払拭するために追加したのだが、これはまずかったみたい。<br />
+正しくは次の通りみたいだ。</p>
+<pre>	    	LPC_<a class="keyword" href="http://d.hatena.ne.jp/keyword/WKT">WKT</a>->CTRL |= <a class="keyword" href="http://d.hatena.ne.jp/keyword/WKT">WKT</a>_<a class="keyword" href="http://d.hatena.ne.jp/keyword/CLR">CLR</a>;
+NVIC_ClearPendingIRQ(<a class="keyword" href="http://d.hatena.ne.jp/keyword/WKT">WKT</a>_IRQn);
+NVIC_DisableIRQ(<a class="keyword" href="http://d.hatena.ne.jp/keyword/WKT">WKT</a>_IRQn);
+</pre>
+<p>この修正を加えることで、ちゃんとスリープから復帰する。</p>
+<p>しかし、フラグをクリアするのに、0を代入するんじゃ無くて、1を代入するとか罠だよな。<br />
+今年も残りわずかだが、なんとか年内に記事を公開できそうだ。</p>
+<p>00:07追加<br />
+あけましておめでとうございました。<br />
+修正後のmainを貼り忘れた。<br />
+<script src="https://gist.github.com/akimasa/655b6fa8a0e43c04caee.js"> </script><cite class="hatena-citation"><a href="https://gist.github.com/akimasa/655b6fa8a0e43c04caee">gist.github.com</a></cite><br />
+直すと、こんな感じになるかと思う。</p>

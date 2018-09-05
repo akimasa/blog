@@ -1,0 +1,28 @@
+---
+layout: post
+status: publish
+published: true
+title: qemuをPCIパススルーでNVIDIAのGPUを使う場合1607に更新できない？
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 69
+wordpress_url: https://blog.akimasa.jp/?p=69
+date: '2016-08-11 21:07:45 +0900'
+date_gmt: '2016-08-11 12:07:45 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>NVIDIA GPUドライバの問題なのか、Windowsの問題なのか、それとも蟹のオーディオのドライバの問題なのかよくわからないが、いずれにせよアップグレードしようとすると再起動後にBSoDが発生してすぐに元に戻ってしまう。<br />
+qemu-system-x86_64 -cpuにに次の様なオプションを追加することで問題なく進めることができた。<br />
+1511: kvm=off,hv_vendor_id=hoge<br />
+1607へアップグレード前:core2duo,kvm=off,hv_vendor_id=hoge<br />
+1607にアップグレード後:host,hv_vendor_id=hoge<br />
+ちなみに、これらのオプションは<a href="https://wiki.archlinux.org/index.php/PCI_passthrough_via_OVMF#Troubleshooting">ArchWikiのPCIパススルーのトラブルシューティングの項目</a>に従って試行錯誤してみただけだった。<br />
+そういえば最初はhost,kvm=off,-hypervisorだったっけな。初めて起動スクリプトを書いた時とArchWikiの内容が変わっている？</p>

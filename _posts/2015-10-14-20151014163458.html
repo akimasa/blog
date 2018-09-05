@@ -1,0 +1,22 @@
+---
+layout: post
+status: publish
+published: true
+title: lsでファイル名が文字化けした
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 29
+wordpress_url: https://blog.akimasa.jp/2015/10/14/20151014163458/
+date: '2015-10-14 16:34:58 +0900'
+date_gmt: '2015-10-14 07:34:58 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>lsで何が転がっているか確認しようと思い、実行したら日本語が?????に文字化けしていた。<a class="keyword" href="http://d.hatena.ne.jp/keyword/ssh">ssh</a>で直接ログインした場合にのみ現象が発生して、rootでログインしてsu -で入った場合は何故か文字化けしなかった。そして、echo *は文字化けが起こらなかった。$LANGを調べてみたら、直接ログインして文字化けが起こる場合はja_JP.<a class="keyword" href="http://d.hatena.ne.jp/keyword/UTF-8">UTF-8</a>で、su -で入った場合はen_US.<a class="keyword" href="http://d.hatena.ne.jp/keyword/UTF-8">UTF-8</a>だった。推測だが、入っていない<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%ED%A5%B1%A1%BC%A5%EB">ロケール</a>になっているとlsで文字化けが発生するのかな。入っていない<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%ED%A5%B1%A1%BC%A5%EB">ロケール</a>の場合だとLANG=Cとでも解釈されるんだろうか。よくわからない。後でja_JP.<a class="keyword" href="http://d.hatena.ne.jp/keyword/UTF-8">UTF-8</a>でも入れてみるかな。</p>

@@ -1,0 +1,58 @@
+---
+layout: post
+status: publish
+published: true
+title: PICマイコンを焼いてみた
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 84
+wordpress_url: https://blog.akimasa.jp/?p=84
+date: '2017-03-17 21:20:12 +0900'
+date_gmt: '2017-03-17 12:20:12 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<h1>追記</h1>
+<p><strong>読みづらい文章だと思うので、<a href="https://blog.akimasa.jp/2018/01/15/flashing-pic-2/">こちらにわかりやすく要点を書き直したの</a>をあげた。</strong></p>
+<p>2018/5/21追記:</p>
+<p><a href="https://neuralassembly.blogspot.jp/2016/10/raspberry-pigpiopic.html">公式サイト</a>や<a href="https://neuralassembly.blogspot.jp/2016/10/raspberry-pigpiopic.html">紹介しているブログ</a>を見てもらうと早いが、pickleが幅広いPICマイコンに対応している。下記で紹介されている方法では、限られたPICマイコンしか書き込みができない。pickleを使ったほうが、いろんなPICマイコンに対応していて便利かもしれないのでご参考に</p>
+<h1>元の文章</h1>
+<p><a href="http://akizukidenshi.com/catalog/contents2/akiba.aspx">秋月</a>でPIC10F322とPIC12LF1822を購入してみた。<br />
+しかし、よくよく考えたら、<strong>PICライターを持っていなかった</strong>。<br />
+PICkitは5000円以上で高いし、AliExpressに転がっている謎の互換品でも10ドルくらいする。AliExpressで買っても良さそうだけど、届くまでかなりの時間がかかってしまうんだよな。すぐに遊びたい。<br />
+ArduinoのPICライターがあるっぽいけど、家に帰ってよく調べてみたら自分の使いたいPICは見事に対応していなかったようだ。というか、そもそも持っているArduino Unoは5VのIOピンで、購入したPIC12LF1822は5Vに耐えられない仕様だった。なんでLFなんて買ってしまったのか今となってはよくわからない。</p>
+<div>さて、どうするか&hellip;</div>
+<div></div>
+<p>ESP8266をArduinoにさせる何かでも使おうかと思ったけど、あんまり意味がなさそう。<br />
+そういえば、Raspberry Piがごろごろ転がっていたので、これのGPIOを使って焼けないかと思っていたら、GitHubに見事にそれっぽいのが転がっていた。<a href="https://github.com/WallaceIT/picberry/">picberry</a>というソフトを使えば買って来たマイコンが焼けるかと思いきや、そういう訳にも行かなかった。<br />
+これもまた買って来たPICが対応していなかった。しかし、ソースコードは思ってたよりも読みやすく、利用できそうだった。ので、<a href="http://ww1.microchip.com/downloads/en/DeviceDoc/41390D.pdf">PIC12F1822ファミリーのフラッシュメモリ書き込み仕様書</a>を読みながら対応させた。<a href="http://ww1.microchip.com/downloads/en/DeviceDoc/41572D.pdf">PIC10F322ファミリーのフラッシュメモリ書き込み仕様書</a>も見ていた。<br />
+<a href="https://github.com/akimasa/picberry/tree/devel">https://github.com/akimasa/picberry/tree/devel</a><br />
+上記URLになる。<br />
+make raspberrypiかmake raspberrypi2でいけたと思う。<br />
+<a href="https://github.com/akimasa/picberry/tree/devel#building-and-installing-picberry">説明</a>に書いてあった。GPIOを叩くだけっぽいので、BeagleBoneとかでもいけるらしい。試していないのでうまくいくかどうかはわからない。<br />
+自分はRaspberry Pi Zeroでやってみた。<br />
+<a href="https://shop.pimoroni.com/">イギリスの通販</a>で買えば、500円もしなかった。送料がかかるので、送料込みだと結構な値段になるが、Raspberry Pi用のカメラとかも安かったので正月に色々まとめて買っていた。日本でも、Pi Zeroは最近発売されたらしいが、品薄だ。値段は確か、税抜き600円だったっけな。使うとなると、microSDにUSBケーブルが最低限必要になるので、揃えると1000円は超えそう。さらに、<a href="http://akizukidenshi.com/catalog/g/gC-09830/">スルーホール用のテストワイヤー</a>もあると便利。250円か。microSDにOSを入れる術も用意しておかないといけない。これは、microSDカードリーダーがあればいける。あと、ブレッドボードも必要かな。幸いなことに、OSの入ったmicroSDもUSBケーブルもテストワイヤーも全て家に転がっていた。したがって、出費なしでPIC書き込み環境が揃えられた。</p>
+<ul>
+<li>Raspberry Pi Zero 600円</li>
+<li>microSDHC 16GB 600円？</li>
+<li>USBケーブル 100円？</li>
+<li>テストワイヤー 250円</li>
+<li>microSDカードリーダー 不明（PCに内蔵されていた）</li>
+<li>ブレッドボード 270円？</li>
+</ul>
+<p>なにも持っていなくてPICマイコンだけ買ってしまっても、これだけ揃えれば書き込みができる。今だとPi Zeroを入手するのが一番難しいか。その場合は、他のGPIOのついたRaspberry Piでも代用が充分できるが、少し高い。あと、片側がソケットになっているジャンパワイヤーが必要。Raspberry Piはピンヘッダがついているのでピンソケットで接続しないといけない。</p>
+<pre>&nbsp;sudo ./picberry -f pic10f322 -w ramen_int2.hex</pre>
+<p>さて、上記コマンドでPIC10F322にうまいこと<a href="http://chitose6thplant.web.fc2.com/pic10f/322_ramen.htm">拾って来たhexファイル</a>を焼くことができて、正常に動作するらしいことが確認できた。</p>
+<p><del>PIC12LF1822にも<a href="http://chitose6thplant.web.fc2.com/n_4digit/config_pikapika.html">同じサイトにあるhexファイル</a>を拾って、見事に機能することが確認できた。書き込み時に-f pic12f1822と指定するといけたと思う。どのようなオプションをつければ良いかは後ほどまとめるかもしれないし、まとめないかもしれない。</del></p>
+<p>3/20追記：今ではpic10f322と指定するだけでデバイスIDから自動検出するようになりました。</p>
+<p>書き書きできたので、何か作ろうと思って、<a href="http://sdcc.sourceforge.net/">sdcc</a>を<a href="http://brew.sh">homebrew</a>で入れてみた。コンパイル済みのものが降って来たのだが、あれを結構使っている人がいるってことだろうか。10年くらい前に使ってみて、delayが無いので不便だと思ってたけど、今になっても指定したミリ秒やマイクロ秒だけウェイトを入れる機能がない&hellip;</p>
+<p>なんかうまい解決方法があるんかなぁ&hellip;。microchip公式の開発環境を使った方がいいんのかな。</p>
+<p>とりあえず、Lチカ（違）はできた。<a href="https://gist.github.com/akimasa/82e78ab4baf76725eafe935eb0437bb2">ソースコード</a>を置いておく。RA2を圧電スピーカーにでも繋ぐと音が出る（ぉぃ</p>
+<p>とりあえず、ライターは動くものが出来ているけど、表示されている書き込みアドレスがおかしかったり、進捗がおかしかったりしているので、後で直して、プルリクエストを送るんだ&hellip;。ああ、そうだ。デバイスIDで機種を自動検出しないとな&hellip;。結構、やること多くて、PR送れるのはいつになるやら。</p>

@@ -1,0 +1,28 @@
+---
+layout: post
+status: publish
+published: true
+title: gitであるremoteから異なるremoteにbranchをコピーしたい
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 280
+wordpress_url: https://blog.akimasa.jp/?p=280
+date: '2018-04-28 00:30:44 +0900'
+date_gmt: '2018-04-27 15:30:44 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>git push gcp remotes/origin/panic3:panic3</p>
+<p>git push dst remotes/origin/branch:branchとかgit push dst origin/branch:dst/branchとかgit push dst origin/branch:branchとか試したが、うまくいかず、ググったらgit push dst origin/branch:refs/heads/branchだと判明した。</p>
+<pre>error: unable to push to unqualified destination: branch
+The destination refspec neither matches an existing ref on the remote nor
+begins with refs/, and we are unable to guess a prefix based on the source ref.</pre>
+<p>と出ていたが、よくわからなかったので無視していたが、refs/から始まるという重要なヒントを見逃していた。</p>
+<p>参考:<a href="https://stackoverflow.com/questions/7818927/git-push-branch-from-one-remote-to-another">https://stackoverflow.com/questions/7818927/git-push-branch-from-one-remote-to-another</a></p>

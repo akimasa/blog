@@ -1,0 +1,38 @@
+---
+layout: post
+status: publish
+published: true
+title: Build OpenOCD on Raspberry Pi
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 166
+wordpress_url: https://blog.akimasa.jp/?p=166
+date: '2018-01-12 17:22:41 +0900'
+date_gmt: '2018-01-12 08:22:41 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>Raspberry Pi 3でOpenOCDをビルドしてみた。</p>
+<pre>$ git clone git://repo.or.cz/openocd.git
+$ cd openocd/
+$ ./bootstrap
+$ ./configure --enable-sysfsgpio --enable-bcm2835gpio
+$ make -j4</pre>
+<p>上記コマンドを実行する。ビルドにそんなに時間はかからなかったと思う。終わったら、tarに固めて、手元にあるRaspberry Pi Zero Wに転送して、使った。</p>
+<p><a href="http://akizukidenshi.com/catalog/g/gK-12339/">秋月のAE-TYBLE16</a>のFlashを読み取るのには成功したと思う。書き込みはまだ試していない。ちなみに、openocd.cfgの内容は下記の通り。Raspberry Pi Zero Wなので、初代RasPiと同じCPUを積んでいて、GPIOのメモリアドレスは初代のものを使う。<a href="https://learn.adafruit.com/programming-microcontrollers-using-openocd-on-raspberry-pi/wiring-and-test">adafruitの記事</a>を真似て書いた。そちらの記事にも書いてあるが、下記のopenocd.cfgだと、SWDIOが24ピン、SWDCLKが25ピンになる。なお、Raspberry Pi 2以降で使う別のファイルであるinterface/raspberrypi2-native.cfgだと標準でSWDのピンが選ばれていたと思うので、openocd.cfgでわざわざ指定しなくてもSWDIOが24ピン、SWDCLKが25ピンになるはず。</p>
+<pre>source [find interface/raspberrypi-native.cfg]
+transport select swd
+bcm2835gpio_swd_nums 25 24
+bcm2835gpio_trst_num 7
+bcm2835gpio_srst_num 18
+source [find target/nrf51.cfg]</pre>
+<p>&nbsp;</p>
+<p>Debianのopenocdパッケージのソースを見てみたが、普通に<code>--enable-bcm2835gpio</code>ってconfigureのフラグに普通にあったので、多分RasPiで使える。</p>
+<p>時間がない方や急いでいる人は、Debian（もしかしたらRaspbianも？）のパッケージをインストールすると良いかもしれない。試していないので、動くかどうかはよくわからない。</p>

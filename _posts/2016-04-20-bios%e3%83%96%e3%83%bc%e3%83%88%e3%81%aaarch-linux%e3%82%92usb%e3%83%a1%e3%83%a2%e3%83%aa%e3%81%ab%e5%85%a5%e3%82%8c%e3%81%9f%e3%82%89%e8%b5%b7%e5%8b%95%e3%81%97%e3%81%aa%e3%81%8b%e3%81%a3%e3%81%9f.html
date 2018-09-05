@@ -1,0 +1,25 @@
+---
+layout: post
+status: publish
+published: true
+title: BIOSブートなArch LinuxをUSBメモリに入れたら起動しなかった
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 49
+wordpress_url: https://blog.akimasa.jp/?p=49
+date: '2016-04-20 23:48:40 +0900'
+date_gmt: '2016-04-20 14:48:40 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<blockquote>初期 RAM ディスクを作成 (# mkinitcpio -p linux) する前に、/etc/mkinitcpio.conf の HOOKS の udev のすぐ後に block フックを追加してください。初期ユーザー空間で適切なモジュールをロードするために必要です。</p></blockquote>
+<p><a href="https://wiki.archlinuxjp.org/index.php/USB_%E3%82%AD%E3%83%BC%E3%81%AB_Arch_Linux_%E3%82%92%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB">USB キーに Arch Linux をインストール</a><br />
+これが重要だった。<br />
+UEFIブートの時は確かmkinitcpio.confを編集しなかったと思うのだが&hellip;、UEFIだと必要ない編集なのかな。</p>

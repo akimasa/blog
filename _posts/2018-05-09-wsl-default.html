@@ -1,0 +1,23 @@
+---
+layout: post
+status: publish
+published: true
+title: Bash on Windowsのデフォルトディストロを変更する方法
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 283
+wordpress_url: https://blog.akimasa.jp/?p=283
+date: '2018-05-09 18:32:13 +0900'
+date_gmt: '2018-05-09 09:32:13 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>bash -c "redis-server"でredis-serverが起動しなかった。原因は、おそらくDebianとUbuntuの2種類のLinuxが入っているためだが、どうやって解決するかすぐにはわからなかった</p>
+<p><a href="https://docs.microsoft.com/en-us/windows/wsl/wsl-config">wsl-config</a>を使うと良い。これを使うとbash.exeで呼び出されるLinuxを変更することができるらしい。wslconfig /setdefault "Ubuntu"で解決した。</p>

@@ -1,0 +1,31 @@
+---
+layout: post
+status: publish
+published: true
+title: Raspberry Pi ZeroがUSB LANアダプタとして認識されない
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 168
+wordpress_url: https://blog.akimasa.jp/?p=168
+date: '2018-01-12 16:28:07 +0900'
+date_gmt: '2018-01-12 07:28:07 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p class="alignnone size-medium wp-image-172">/boot/config.txtに<code>dtoverlay=dwc2</code>を追記、/boot/cmdline.txtの最後に<code> modules-load=dwc2,g_ether</code>を追記した（スペース入れてから追記する。改行はしないで1行のまま追記する。）<br />
+しかし、Windowsだとプラグ・アンド・プレイで認識されないらしい。</p>
+<p>その場合は、<a href="http://www.catalog.update.microsoft.com/Search.aspx?q=Acer%20Incorporated.%20-%20Other%20hardware%20-%20USB%20Ethernet%2FRNDIS%20Gadget">適当なRNDISドライバ</a>を使うと良いらしい。<br />
+デバイスマネージャーで、認識されてしまっている怪しげなシリアルポートのドライバを更新する。その際に、ダウンロードしたcabファイルを展開したフォルダを選択する。</p>
+<p><img class="alignnone wp-image-172 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/01/c086cb192bab3d89ddfd701b7813c85a.png" alt="" width="782" height="593" /></p>
+<p><img class="alignnone wp-image-173 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/01/1412b7cdb8f1305946c4d4ca7576d38c.png" alt="" width="620" height="479" /></p>
+<p><img class="alignnone wp-image-171 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/01/0d40a5e4a645fc6b96e767d64ac0878e.png" alt="" width="783" height="594" /></p>
+<p><img class="alignnone wp-image-174 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/01/d5d60f813575e85acf0a483a66290098.png" alt="" width="623" height="467" /></p>
+<p>&nbsp;</p>
+<p><a href="https://qiita.com/gpsnmeajp/items/126fadd3e47cdd4a6c00">https://qiita.com/gpsnmeajp/items/126fadd3e47cdd4a6c00</a></p>

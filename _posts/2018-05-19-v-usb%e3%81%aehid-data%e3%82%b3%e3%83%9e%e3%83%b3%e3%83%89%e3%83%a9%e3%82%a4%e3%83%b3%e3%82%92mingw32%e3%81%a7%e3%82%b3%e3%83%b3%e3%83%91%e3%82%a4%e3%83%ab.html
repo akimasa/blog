@@ -1,0 +1,24 @@
+---
+layout: post
+status: publish
+published: true
+title: V-USBのhid-dataコマンドラインをmingw32でコンパイル
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 286
+wordpress_url: https://blog.akimasa.jp/?p=286
+date: '2018-05-19 17:38:24 +0900'
+date_gmt: '2018-05-19 08:38:24 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>mingw32でV-USBのサンプルにある、hid-dataのコマンドライン(<a href="https://www.obdev.at/products/vusb/download.html">https://www.obdev.at/products/vusb/download.html</a> のvusb-20121206/examples/hid-data/commandline)をコンパイルしようとしたら、うまくいかなかった。</p>
+<p><a href="https://github.com/Alexpux/MINGW-packages/blob/master/mingw-w64-avrdude/02-ddk-headers.patch">これ</a>をヒントに、"<span class="pl-mi1">ddk/hidpi.h"</span>->"<span class="pl-mi1">hidpi.h"に書き換えたらうまくいった。</span></p>
+<p>&nbsp;</p>

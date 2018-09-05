@@ -1,0 +1,27 @@
+---
+layout: post
+status: publish
+published: true
+title: Windows版KaoriYa Vimの内部エンコーディングをUTF-8にする
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 113
+wordpress_url: https://blog.akimasa.jp/?p=113
+date: '2017-05-22 05:57:13 +0900'
+date_gmt: '2017-05-21 20:57:13 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><a href="http://kimiyuki.sakura.ne.jp/?p=55">こちら</a>を参考にして、/switches/catalog/utf-8.vimを/switches/enabledにコピーした。</p>
+<p>https://twitter.com/akimasa2000/status/866306058595188736</p>
+<p>これで、上記みたいな文字化けが起こらなくなくなる。はず。</p>
+<p>あとは、~/vimfiles/.vimrcへのシンボリックリンクを~/_vimrcから張った。</p>
+<p>deinの場所が~/.vim/dein/決め打ちなので、~/.vim/ -> ~/vimfiles/ のリンクも張った。</p>
+<p>mklinkはcmdからじゃないと使えないのはなんでだろう&hellip;。PowerShellにはほかの名前で存在しているのかな。</p>

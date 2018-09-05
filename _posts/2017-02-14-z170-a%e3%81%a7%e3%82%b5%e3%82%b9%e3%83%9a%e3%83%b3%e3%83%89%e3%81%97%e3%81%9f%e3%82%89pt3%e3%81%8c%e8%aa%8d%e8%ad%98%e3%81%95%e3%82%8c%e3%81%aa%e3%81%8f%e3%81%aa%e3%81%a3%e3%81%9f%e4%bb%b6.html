@@ -1,0 +1,26 @@
+---
+layout: post
+status: publish
+published: true
+title: Z170-AでサスペンドしたらPT3が認識されなくなった件
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 81
+wordpress_url: https://blog.akimasa.jp/?p=81
+date: '2017-02-14 16:25:09 +0900'
+date_gmt: '2017-02-14 07:25:09 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>サスペンドして、復帰すると、カーネルのログにNot a PT3と出力されてPT3が使い物にならなくなる。BIOSの更新を行なった後に発生したので、多分BIOSの更新が関係するとは思うのだが、BIOSのバージョンを元に戻すことができないので謎である。期待せずに、ASUSのサポート（代理店）に問い合わせたら期待通りの期待できない回答だった。</p>
+<p>PT2の不具合をやっつけたら、今度はPT3で不具合かよ&hellip;。</p>
+<p>2017/4/6追記：マザーボードを変えても同じ現象が再現した。もしかすると、BIOSが原因では無いのかもしれない。PT3の故障の可能性もありうる気がしてきた。あるいはPT3ドライバか。</p>
+<p>2018/8/21追記：</p>
+<p>なんとなく検索コンソールみたら2chからリンクを張られていた。参考までに、この問題は、通常GPUを差すPCIe x16スロット（CPUに近い方）にPT3を差し込むことで回避できている。</p>

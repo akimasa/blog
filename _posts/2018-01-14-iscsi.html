@@ -1,0 +1,344 @@
+---
+layout: post
+status: publish
+published: true
+title: iSCSIをRasPiで使いたい
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 181
+wordpress_url: https://blog.akimasa.jp/?p=181
+date: '2018-01-14 20:46:25 +0900'
+date_gmt: '2018-01-14 11:46:25 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<h1>やりたいこと</h1>
+<p>Raspberry Pi 3をiSCSIターゲットにしたい。</p>
+<h1>結論</h1>
+<p><a href="https://wiki.archlinux.jp/index.php/ISCSI_%E3%82%BF%E3%83%BC%E3%82%B2%E3%83%83%E3%83%88">iSCSI Enterprise Targetのパッケージiscsitargetは古いので、LIOターゲットを使うべき</a>。らしい。LIOターゲットのパッケージである<span class="plainlinks archwiki-template-pkg">targetcli-fbはRaspbianに入ってはいるが、カーネルを自分でビルドしないと使えなさそう。</span></p>
+<h1>試行記録</h1>
+<p>Raspbianでiscsitarget-dkmsを入れようとしたら次のようなエラーが出た</p>
+<pre>Setting up linux-kbuild-3.6 (3.6-1~experimental.1+rpi2+b2) ...
+Setting up iscsitarget-dkms (1.4.20.3+svn502-2) ...
+
+Creating symlink /var/lib/dkms/iscsitarget/1.4.20.3+svn502/source ->
+ /usr/src/iscsitarget-1.4.20.3+svn502
+
+DKMS: add completed.
+Error! echo
+Your kernel headers for kernel 4.9.59-v7+ cannot be found at
+/lib/modules/4.9.59-v7+/build or /lib/modules/4.9.59-v7+/source.
+Removing old iscsitarget-1.4.20.3+svn502 DKMS files...
+
+------------------------------
+Deleting module version: 1.4.20.3+svn502
+completely from the DKMS tree.
+------------------------------
+Done.
+Loading new iscsitarget-1.4.20.3+svn502 DKMS files...
+It is likely that 4.9.59-v7+ belongs to a chroot's host
+Building for 3.6-trunk-rpi, 4.9.59+ and 4.9.59-v7+
+Building initial module for 3.6-trunk-rpi
+Error! Bad return status for module build on kernel: 3.6-trunk-rpi (armv7l)
+Consult /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/make.log for more information.
+Setting up linux-headers-3.6-trunk-rpi (3.6.9-1~experimental.1+rpi7) ...
+Examining /etc/kernel/header_postinst.d.
+run-parts: executing /etc/kernel/header_postinst.d/dkms 3.6-trunk-rpi
+Error! Bad return status for module build on kernel: 3.6-trunk-rpi (armv7l)
+Consult /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/make.log for more information.</pre>
+<p>raspberrypi-kernel-headersを入れてみたが、古いようでダメだった。<br />
+rpi-updateで入るかと思ったが、これでもダメだった。</p>
+<p>調べてみて出てきたので、<a href="https://github.com/notro/rpi-source/wiki">rpi-source</a>を使ってみた。そのままではGCCのバージョンが違うようで実行できないので、<code>rpi-source --skip-gcc</code>で通った。が、dkms autoinstallが通らない。</p>
+<pre>sudo apt install gcc-4.9 g++-4.9
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 20
+sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.6 20
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 50
+sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 50
+cd ~/linux/
+make clean
+make modules_prepare
+sudo dkms autoinstall</pre>
+<p>しかし、やはり通らない。</p>
+<pre>$ cat /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/make.log  DKMS make.log for iscsitarget-1.4.20.3+svn502 for kernel 4.9.76-v7+ (armv7l)
+Sun 14 Jan 18:29:00 JST 2018
+make: Entering directory '/home/pi/linux-5aa4c3138c62f89b0f805c6591018d16c562e77c'
+  LD      /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/built-in.o
+  LD      /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/built-in.o
+  CC [M]  /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/tio.o
+  CC [M]  /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.o
+  CC [M]  /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.o
+  CC [M]  /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/wthread.o
+In file included from /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/tio.c:7:0:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.h:274:19: error: field &lsquo;rx_hash&rsquo; has incomplete type
+  struct hash_desc rx_hash;
+                   ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.h:275:19: error: field &lsquo;tx_hash&rsquo; has incomplete type
+  struct hash_desc tx_hash;
+                   ^
+In file included from ./include/linux/sched.h:17:0,
+                 from ./include/linux/blkdev.h:4,
+                 from /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.h:11,
+                 from /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/tio.c:7:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/tio.c: In function &lsquo;tio_add_data&rsquo;:
+./include/linux/kernel.h:739:16: warning: comparison of distinct pointer types lacks a cast
+  (void) (&amp;min1 == &amp;min2);   \
+                ^
+./include/linux/kernel.h:742:2: note: in expansion of macro &lsquo;__min&rsquo;
+  __min(typeof(x), typeof(y),   \
+  ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/tio.c:75:25: note: in expansion of macro &lsquo;min&rsquo;
+  const size_t to_copy = min(tio->pg_cnt * PAGE_SIZE - iter->size, len);
+                         ^
+./include/linux/kernel.h:739:16: warning: comparison of distinct pointer types lacks a cast
+  (void) (&amp;min1 == &amp;min2);   \
+                ^
+./include/linux/kernel.h:742:2: note: in expansion of macro &lsquo;__min&rsquo;
+  __min(typeof(x), typeof(y),   \
+  ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/tio.c:82:18: note: in expansion of macro &lsquo;min&rsquo;
+   size_t chunk = min(PAGE_SIZE - iter->pg_off, residual);
+                  ^
+In file included from /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/wthread.c:9:0:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.h:274:19: error: field &lsquo;rx_hash&rsquo; has incomplete type
+  struct hash_desc rx_hash;
+                   ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.h:275:19: error: field &lsquo;tx_hash&rsquo; has incomplete type
+  struct hash_desc tx_hash;
+                   ^
+In file included from /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:16:0:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.h:274:19: error: field &lsquo;rx_hash&rsquo; has incomplete type
+  struct hash_desc rx_hash;
+                   ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.h:275:19: error: field &lsquo;tx_hash&rsquo; has incomplete type
+  struct hash_desc tx_hash;
+                   ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c: In function &lsquo;iscsi_conn_init_read&rsquo;:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:45:16: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iov&rsquo;
+  conn->read_msg.msg_iov = conn->read_iov;
+                ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:46:16: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iovlen&rsquo;
+  conn->read_msg.msg_iovlen = 1;
+                ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c: In function &lsquo;forward_iov&rsquo;:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:86:12: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iov&rsquo;
+  while (msg->msg_iov->iov_len <= len) { ^ /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:87:13: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iov&rsquo; len -= msg->msg_iov->iov_len;
+             ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:88:6: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iov&rsquo;
+   msg->msg_iov++;
+      ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:89:6: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iovlen&rsquo;
+   msg->msg_iovlen--;
+      ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:92:5: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iov&rsquo;
+  msg->msg_iov->iov_base = (char *) msg->msg_iov->iov_base + len;
+     ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:92:39: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iov&rsquo;
+  msg->msg_iov->iov_base = (char *) msg->msg_iov->iov_base + len;
+                                       ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:93:5: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iov&rsquo;
+  msg->msg_iov->iov_len -= len;
+     ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c: In function &lsquo;do_recv&rsquo;:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:113:5: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iov&rsquo;
+  msg.msg_iov = iov;
+     ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:114:5: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iovlen&rsquo;
+  msg.msg_iovlen = min_t(size_t, conn->read_msg.msg_iovlen, ISCSI_CONN_IOV_MAX);
+     ^
+In file included from ./include/linux/list.h:8:0,
+                 from ./include/linux/module.h:9,
+                 from /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:9:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:114:47: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iovlen&rsquo;
+  msg.msg_iovlen = min_t(size_t, conn->read_msg.msg_iovlen, ISCSI_CONN_IOV_MAX);
+                                               ^
+./include/linux/kernel.h:737:13: note: in definition of macro &lsquo;__min&rsquo;
+  t1 min1 = (x);     \
+             ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:114:19: note: in expansion of macro &lsquo;min_t&rsquo;
+  msg.msg_iovlen = min_t(size_t, conn->read_msg.msg_iovlen, ISCSI_CONN_IOV_MAX);
+                   ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:115:30: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iovlen&rsquo;
+  for (i = 0, len = 0; i < msg.msg_iovlen; i++) { ^ /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:116:26: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iov&rsquo; iov[i] = conn->read_msg.msg_iov[i];
+                          ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:122:8: error: too many arguments to function &lsquo;sock_recvmsg&rsquo;
+  res = sock_recvmsg(conn->sock, &amp;msg, len, MSG_DONTWAIT | MSG_NOSIGNAL);
+        ^
+In file included from ./include/linux/skbuff.h:29:0,
+                 from ./include/linux/if_ether.h:23,
+                 from ./include/uapi/linux/ethtool.h:18,
+                 from ./include/linux/ethtool.h:17,
+                 from ./include/linux/netdevice.h:42,
+                 from ./include/net/sock.h:51,
+                 from /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.h:19,
+                 from /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:16:
+./include/linux/net.h:228:5: note: declared here
+ int sock_recvmsg(struct socket *sock, struct msghdr *msg, int flags);
+     ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c: In function &lsquo;write_data&rsquo;:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:343:9: error: too few arguments to function &lsquo;vfs_writev&rsquo;
+   res = vfs_writev(file, (struct iovec __user *) iop, count, &amp;off);
+         ^
+In file included from ./include/linux/seq_file.h:10:0,
+                 from ./include/linux/pinctrl/consumer.h:17,
+                 from ./include/linux/pinctrl/devinfo.h:21,
+                 from ./include/linux/device.h:24,
+                 from ./include/linux/genhd.h:64,
+                 from ./include/linux/blkdev.h:9,
+                 from /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.h:11,
+                 from /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:16:
+./include/linux/fs.h:1782:16: note: declared here
+ extern ssize_t vfs_writev(struct file *, const struct iovec __user *,
+                ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:378:18: error: &lsquo;PAGE_CACHE_SHIFT&rsquo; undeclared (first use in this function)
+  idx = offset >> PAGE_CACHE_SHIFT;
+                  ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:378:18: note: each undeclared identifier is reported only once for each function it appears in
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:379:13: error: &lsquo;PAGE_CACHE_MASK&rsquo; undeclared (first use in this function)
+  offset &amp;= ~PAGE_CACHE_MASK;
+             ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:386:14: error: &lsquo;PAGE_CACHE_SIZE&rsquo; undeclared (first use in this function)
+   sendsize = PAGE_CACHE_SIZE - offset;
+              ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c: In function &lsquo;close_conn&rsquo;:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.c:669:32: warning: assignment from incompatible pointer type
+  conn->sock->sk->sk_data_ready = target->nthread_info.old_data_ready;
+                                ^
+scripts/Makefile.build:293: recipe for target '/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/tio.o' failed
+make[2]: *** [/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/tio.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
+scripts/Makefile.build:293: recipe for target '/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/wthread.o' failed
+make[2]: *** [/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/wthread.o] Error 1
+scripts/Makefile.build:293: recipe for target '/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.o' failed
+make[2]: *** [/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/nthread.o] Error 1
+In file included from /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:13:0:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.h:274:19: error: field &lsquo;rx_hash&rsquo; has incomplete type
+  struct hash_desc rx_hash;
+                   ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.h:275:19: error: field &lsquo;tx_hash&rsquo; has incomplete type
+  struct hash_desc tx_hash;
+                   ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c: In function &lsquo;cmnd_skip_pdu&rsquo;:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:485:21: error: &lsquo;PAGE_CACHE_SIZE&rsquo; undeclared (first use in this function)
+  for (i = 0; size > PAGE_CACHE_SIZE; i++, size -= PAGE_CACHE_SIZE) {
+                     ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:485:21: note: each undeclared identifier is reported only once for each function it appears in
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:492:16: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iov&rsquo;
+  conn->read_msg.msg_iov = conn->read_iov;
+                ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:493:16: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iovlen&rsquo;
+  conn->read_msg.msg_iovlen = ++i;
+                ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c: In function &lsquo;cmnd_recv_pdu&rsquo;:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:712:39: error: &lsquo;PAGE_CACHE_SIZE&rsquo; undeclared (first use in this function)
+  if (!(offset + size <= tio->pg_cnt * PAGE_CACHE_SIZE)) {
+                                       ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:718:18: error: &lsquo;PAGE_CACHE_SHIFT&rsquo; undeclared (first use in this function)
+  idx = offset >> PAGE_CACHE_SHIFT;
+                  ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:719:13: error: &lsquo;PAGE_CACHE_MASK&rsquo; undeclared (first use in this function)
+  offset &amp;= ~PAGE_CACHE_MASK;
+             ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:721:16: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iov&rsquo;
+  conn->read_msg.msg_iov = conn->read_iov;
+                ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:733:18: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iovlen&rsquo;
+    conn->read_msg.msg_iovlen = ++i;
+                  ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:740:18: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iovlen&rsquo;
+    conn->read_msg.msg_iovlen = i;
+                  ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c: In function &lsquo;nop_out_start&rsquo;:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:921:17: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iov&rsquo;
+   conn->read_msg.msg_iov = conn->read_iov;
+                 ^
+In file included from /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:13:0:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.h:456:36: error: &lsquo;PAGE_CACHE_SIZE&rsquo; undeclared (first use in this function)
+ #define get_pgcnt(size) (((size) + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT)
+                                    ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:924:17: note: in expansion of macro &lsquo;get_pgcnt&rsquo;
+    int pg_cnt = get_pgcnt(size);
+                 ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.h:456:60: error: &lsquo;PAGE_CACHE_SHIFT&rsquo; undeclared (first use in this function)
+ #define get_pgcnt(size) (((size) + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT)
+                                                            ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:924:17: note: in expansion of macro &lsquo;get_pgcnt&rsquo;
+    int pg_cnt = get_pgcnt(size);
+                 ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:949:17: error: &lsquo;struct msghdr&rsquo; has no member named &lsquo;msg_iovlen&rsquo;
+   conn->read_msg.msg_iovlen = i;
+                 ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c: In function &lsquo;scsi_cmnd_start&rsquo;:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:989:7: error: &lsquo;SERVICE_ACTION_IN&rsquo; undeclared (first use in this function)
+  case SERVICE_ACTION_IN:
+       ^
+In file included from /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:13:0:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.h:456:36: error: &lsquo;PAGE_CACHE_SIZE&rsquo; undeclared (first use in this function)
+ #define get_pgcnt(size) (((size) + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT)
+                                    ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:1030:24: note: in expansion of macro &lsquo;get_pgcnt&rsquo;
+   req->tio = tio_alloc(get_pgcnt(length));
+                        ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.h:456:60: error: &lsquo;PAGE_CACHE_SHIFT&rsquo; undeclared (first use in this function)
+ #define get_pgcnt(size) (((size) + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT)
+                                                            ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:1030:24: note: in expansion of macro &lsquo;get_pgcnt&rsquo;
+   req->tio = tio_alloc(get_pgcnt(length));
+                        ^
+In file included from /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:14:0:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c: In function &lsquo;nop_out_exec&rsquo;:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.h:456:36: error: &lsquo;PAGE_CACHE_SIZE&rsquo; undeclared (first use in this function)
+ #define get_pgcnt(size) (((size) + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT)
+                                    ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi_dbg.h:60:9: note: in definition of macro &lsquo;assert&rsquo;
+   if (!(p)) {      \
+         ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:1479:10: note: in expansion of macro &lsquo;get_pgcnt&rsquo;
+   assert(get_pgcnt(req->pdu.datasize) < ISCSI_CONN_IOV_MAX); ^ /var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.h:456:60: error: &lsquo;PAGE_CACHE_SHIFT&rsquo; undeclared (first use in this function) #define get_pgcnt(size) (((size) + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT)
+                                                            ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi_dbg.h:60:9: note: in definition of macro &lsquo;assert&rsquo;
+   if (!(p)) {      \
+         ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:1479:10: note: in expansion of macro &lsquo;get_pgcnt&rsquo;
+   assert(get_pgcnt(req->pdu.datasize) < ISCSI_CONN_IOV_MAX);
+          ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c: In function &lsquo;__cmnd_send_pdu&rsquo;:
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.c:1638:40: error: &lsquo;PAGE_CACHE_SIZE&rsquo; undeclared (first use in this function)
+  assert(offset + size <= tio->pg_cnt * PAGE_CACHE_SIZE);
+                                        ^
+/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi_dbg.h:60:9: note: in definition of macro &lsquo;assert&rsquo;
+   if (!(p)) {      \
+         ^
+scripts/Makefile.build:293: recipe for target '/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.o' failed
+make[2]: *** [/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel/iscsi.o] Error 1
+scripts/Makefile.build:544: recipe for target '/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel' failed
+make[1]: *** [/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build/kernel] Error 2
+Makefile:1497: recipe for target '_module_/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build' failed
+make: *** [_module_/var/lib/dkms/iscsitarget/1.4.20.3+svn502/build] Error 2
+make: Leaving directory '/home/pi/linux-5aa4c3138c62f89b0f805c6591018d16c562e77c'</pre>
+<p><a href="https://bugs.launchpad.net/ubuntu/+source/iscsitarget/+bug/1668808/comments/2">https://bugs.launchpad.net/ubuntu/+source/iscsitarget/+bug/1668808/comments/2</a></p>
+<p>こんな記述を発見した。どうやら不要らしい。</p>
+<p>と思いきや、 iscsitarget not enabled in "/etc/default/iscsitarget", not starting...で起動していなかったので言われたファイルを編集する。</p>
+<p>モジュールが足りなくて起動しなかった。</p>
+<p>よく調べたら、<a href="https://wiki.archlinux.jp/index.php/ISCSI_%E3%82%BF%E3%83%BC%E3%82%B2%E3%83%83%E3%83%88">現在の標準はIETではなくLIO</a>らしい。</p>
+<p>そこで、targetcli-fbを入れたがサービス起動時に次のようなエラーが出てダメだった。target_coreがないらしい。</p>
+<pre>Jan 14 20:31:04 rpi3-iscsi rtslib-fb-targetctl[1031]: Loading rstlib-fb targetctl: targetctlTraceback (most recent call last):
+Jan 14 20:31:04 rpi3-iscsi rtslib-fb-targetctl[1031]: File "/usr/bin/targetctl", line 82, in <module>
+Jan 14 20:31:04 rpi3-iscsi rtslib-fb-targetctl[1031]: main()
+Jan 14 20:31:04 rpi3-iscsi rtslib-fb-targetctl[1031]: File "/usr/bin/targetctl", line 79, in main
+Jan 14 20:31:04 rpi3-iscsi rtslib-fb-targetctl[1031]: funcs[sys.argv[1]](savefile)
+Jan 14 20:31:04 rpi3-iscsi rtslib-fb-targetctl[1031]: File "/usr/bin/targetctl", line 47, in restore
+Jan 14 20:31:04 rpi3-iscsi rtslib-fb-targetctl[1031]: errors = RTSRoot().restore_from_file(restore_file=from_file)
+Jan 14 20:31:04 rpi3-iscsi rtslib-fb-targetctl[1031]: File "/usr/lib/python2.7/dist-packages/rtslib_fb/root.py", line 67, in __init__
+Jan 14 20:31:04 rpi3-iscsi rtslib-fb-targetctl[1031]: modprobe('target_core_mod')
+Jan 14 20:31:04 rpi3-iscsi rtslib-fb-targetctl[1031]: File "/usr/lib/python2.7/dist-packages/rtslib_fb/utils.py", line 392, in modprobe
+Jan 14 20:31:04 rpi3-iscsi rtslib-fb-targetctl[1031]: raise RTSLibError(stderrdata)
+Jan 14 20:31:04 rpi3-iscsi rtslib-fb-targetctl[1031]: rtslib_fb.utils.RTSLibError: modprobe: FATAL: Module target_core_mod not found in directory /lib/modules/4.9.76-v7+
+Jan 14 20:31:04 rpi3-iscsi rtslib-fb-targetctl[1031]: failed!</pre>
+<p><a href="https://github.com/raspberrypi/linux/issues/2184">githubにそれっぽいissue</a>があったが、進展が今のところない。自分でカーネルをビルドしなおすしかなさそうな感じだった。</p>

@@ -1,0 +1,24 @@
+---
+layout: post
+status: publish
+published: true
+title: VPNですべての通信が通らないようにする
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 291
+wordpress_url: https://blog.akimasa.jp/?p=291
+date: '2018-05-26 00:34:47 +0900'
+date_gmt: '2018-05-25 15:34:47 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>SoftEther VPNで192.168.1.0/24なネットワークにSecureNATで接続したのは良いが、標準だとインターネットへ向けた通信すべてがVPN経由で行われてしまう。これは、ちょっと速度が遅くなりそうで不都合なので下記のようにしてWindows 10のルーティングテーブルのメトリックを変更してうまいこと行くようにした。</p>
+<pre>route change 192.168.1.0 mask 255.255.255.0 192.168.30.1 metric 1 if 14
+route change 0.0.0.0 mask 0.0.0.0 192.168.30.1 metric 100 if 14</pre>

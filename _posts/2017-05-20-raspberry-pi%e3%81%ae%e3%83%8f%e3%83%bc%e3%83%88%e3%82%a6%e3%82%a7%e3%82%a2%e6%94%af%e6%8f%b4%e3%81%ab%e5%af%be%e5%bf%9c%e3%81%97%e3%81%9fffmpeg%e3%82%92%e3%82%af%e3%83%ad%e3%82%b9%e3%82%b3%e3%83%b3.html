@@ -1,0 +1,37 @@
+---
+layout: post
+status: publish
+published: true
+title: Raspberry Piのハートウェア支援に対応したffmpegをクロスコンパイルした。
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 108
+wordpress_url: https://blog.akimasa.jp/?p=108
+date: '2017-05-20 22:51:16 +0900'
+date_gmt: '2017-05-20 13:51:16 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><a href="http://engineer-tom3.cocolog-nifty.com/blog/2017/02/wslwindows10r-1.html">ここ</a>や<a href="http://shima-nigoro.hatenablog.jp/entry/2016/07/23/174927">ここ</a>を参考にgitの最新のffmpegをconfigureしてみたが、通らず。</p>
+<pre class="code lang-sh" data-lang="sh"><span class="synSpecial">--extra-libs="-ldl -lrt</span>"</pre>
+<p class="code lang-sh" data-lang="sh">を追加する必要があった。</p>
+<pre class="code lang-sh" data-lang="sh">$ ./configure --enable-cross-compile --cross-prefix=/usr/bin/arm-linux-gnueabihf- --arch
+=armhf --target-os=linux --prefix=/usr/arm-linux-gnueabihf --enable-omx-rpi --enable-mmal --sysroot=/usr/arm-linux-gnuea
+bihf/opt/vc --extra-cflags="-I /usr/arm-linux-gnueabihf/opt/vc/include -I /usr/arm-linux-gnueabihf/opt/vc/include/IL" --
+extra-libs="-ldl -lrt"</pre>
+<p class="code lang-sh" data-lang="sh">こんな感じになった。</p>
+<p class="code lang-sh" data-lang="sh">それにしても、<strong>Bash on Ubuntu on Windowsは素晴らしい。</strong></p>
+<p class="code lang-sh" data-lang="sh">割と簡単にクロスコンパイルができてしまった。素晴らしいのはUbuntuかな。しかし、ここまでWindowsが使いやすくなっていたとは、予想外だ。</p>
+<p class="code lang-sh" data-lang="sh"><a href="https://www.raspberrypi.org/forums/viewtopic.php?f=67&amp;t=171057">https://www.raspberrypi.org/forums/viewtopic.php?f=67&amp;t=171057</a></p>
+<p class="code lang-sh" data-lang="sh">結局、MPEG-2からH.264へのエンコードは画質が悪くて、いまいちだった。あれだけ省電力だから仕方がないか&hellip;。x264とは比べ物にならなかった。</p>
+<p class="code lang-sh" data-lang="sh">追記：</p>
+<pre>-b:v 1000k -sws_flags fast_bilinear -s 640x360
+</pre>
+<p>を付けたら、いい感じになった。リサイズしているが、CPUは50％くらいしか使わない。画質も、まあまあだ。</p>

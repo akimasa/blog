@@ -1,0 +1,25 @@
+---
+layout: post
+status: publish
+published: true
+title: QEMUの仮想マシンでDHCPが通らなかった
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 79
+wordpress_url: https://blog.akimasa.jp/?p=79
+date: '2017-02-14 16:19:03 +0900'
+date_gmt: '2017-02-14 07:19:03 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>以下のようなコマンドを実行すれば解決</p>
+<p><a href="http://qiita.com/TsutomuNakamura/items/e15d2c8c02586a7ae572">http://qiita.com/TsutomuNakamura/items/e15d2c8c02586a7ae572</a>と<a href="https://wiki.linuxfoundation.org/networking/bridge">https://wiki.linuxfoundation.org/networking/bridge</a> が参考になった。</p>
+<pre class="code">echo 0 >/proc/sys/net/bridge/bridge-nf-call-iptables</pre>
+<p>iptablesがDHCPパケットでもブロックしたようだ。なぜかIPv6は全く問題なく通信できていた。おそらく、DHCPとは違う何らかの方法で自動設定しているからかな。あるいは、ip6tablesが何もしていないからか。iptablesをいじっていないのに、なんでいきなりDHCPが通らなくなったのかは謎である。Docker関連っぽい設定が追加されていた気がするから、Dockerの更新がまずかったのかな。</p>

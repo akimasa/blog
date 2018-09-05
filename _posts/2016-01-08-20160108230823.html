@@ -1,0 +1,49 @@
+---
+layout: post
+status: publish
+published: true
+title: ESP8266が不安定だったけど解決した
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 17
+wordpress_url: https://blog.akimasa.jp/2016/01/08/20160108230823/
+date: '2016-01-08 23:08:23 +0900'
+date_gmt: '2016-01-08 14:08:23 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><span style="font-size: 200%">CH_ENを使って外部からESP8266を起動させていて、動作が不安定な場合はハードウェアユーザーガイドを参照し、RC遅延回路を追加すること</span></p>
+<p>ESP-WROOM-02を使って、インターネットから加工された画像を取得して、<a href="http://akizukidenshi.com/catalog/g/gP-04944/">&#x30E1;&#x30E2;&#x30EA;&#x6DB2;&#x6676;</a><br />
+（<a href="http://wakanyan.net/product/pro_MEM_LCD_breakout/pro_MEM_LCD_breakout.html">&#x307F;&#x3093;&#x306A;&#x306E;&#x30E9;&#x30DC;&#x306E;&#x30D6;&#x30EC;&#x30FC;&#x30AF;&#x30A2;&#x30A6;&#x30C8;&#x57FA;&#x677F;</a>を使ってテスト中）に表示させたい。インターネットから取得するときだけ、ESP8266を起動して、それ以外の時の液晶のリフレッシュや極性反転はLPC810で行う予定。LPC810ひとつだと、ESP8266の画像取得終了を検知出来ないので、2個のLPC810を使って、ひとつは液晶の駆動、もうひとつは液晶駆動LPC810から信号を受け取って、ESP8266の起動を行い、ESP8266の終了の検知をして、液晶駆動しているLPC810を再開させることにしている。<br />
+最初は、終了の検知を出来なくてもいいやと思って、LPC810ひとつでやっていたが、いまいち不安定だった。多分、リセットを行っていないからだろうと思っていたが、違った。電源が使いかけの乾電池だったから、電圧が足りないと思い、昇圧<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%B3%A5%F3%A5%D0%A1%BC%A5%BF%A1%BC">コンバーター</a>を通してみた。そうしたら、多少安定した気がするが、やはり数回に一回はESP8266が起動しない。<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%AA%A5%B7%A5%ED%A5%B9%A5%B3%A1%BC%A5%D7">オシロスコープ</a>で観察したところ、電圧降下や発振が見られた。友人にこのことを聞いてみたら、昇圧<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%B3%A5%F3%A5%D0%A1%BC%A5%BF%A1%BC">コンバーター</a>は発振することがあるらしいことが判明した。少し高い電圧に昇圧して、シリーズレギュレーターを通したらどうだろうとアドバイスをもらい、似たようなことをやってみた。9Vの電源を元に三端子レギュレーターでESP8266とLPC810の3.3Vを得て、液晶駆動用の5Vも別の三端子レギュレーターで得てみた。しかし、ダメだった。角形な9Vの電池を使ったから、これでは電流が足りないのかなと思って、単三電池6本の電池ケースを発注したり、9Vからシリーズレギュレーターで3.3Vを得るのは効率が悪すぎるので、DC/DCコンバータも発注してみた。いろいろ合わせて1万円弱を秋月に発注してしまった。発注したものは、ほとんど使わないで放置することになりそうだ。OSコンとかインダクタとかDC/DC制御ICとか。使わない気がするが、スキルをつけるために動かしてみるか&hellip;。データシート通り組んで終了だけど、放置よりは良いだろう。<br />
+なお、秋月から届いた部品は今のところ、ほぼ放置している。<br />
+ESP8266のフラッシュ書き込みのために使っているブレッドボード上でも3.3Vと5Vが得られるので、それでも試してみた。なんとなく、一番安定しているような気がするが、やはり何回かに1度は起動に失敗する。<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%AA%A5%B7%A5%ED%A5%B9%A5%B3%A1%BC%A5%D7">オシロスコープ</a>で観察する限りでは、一番安定していた気がする。が、ダメだった。<br />
+長くなってしまったが、疑った原因は次の二つだけだ。</p>
+<ul>
+<li>リセット信号のタイミング</li>
+<li>電源 </li>
+</ul>
+<p>結局、両方とも原因では無かった。</p>
+<p><a href="http://bbs.espressif.com/viewtopic.php?f=21&t=412&p=1545#p1545">[Document list 0A-0D] ESP8266 Hardware Guide - ESP8266 Developer Zone</a><br />
+原因は、ESP8266のHardware User Guideに次のように書かれていた</p>
+<blockquote>
+<p>Note: If the power management IC is connected with the power-on enable pin CHIP_EN, it can control the power on-and-off of ESP8266EX by output high and low voltage through its GPIOs. However, pulsed current might be produced at the same time. In order to delay the transmission of pulsed signal and avoid unstable current of CHIP_EN, a RC time-delay circuit (R=1k&Omega;, C=100nF) is needed. There is an internal pull-up in the CHIP_EN pin, so no external pull-up is needed.</p>
+</blockquote>
+<p>そう。<br />
+RC遅延回路を組めば良かった。</p>
+<p>発注していなかったが、幸い、1k&Omega;の抵抗と、0.1&mu;Fの<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%B3%A5%F3%A5%C7%A5%F3%A5%B5">コンデンサ</a>が家に転がっていたので利用した。<br />
+そしたら、かなり安定して動作するようになった。20回近く電源を入れ直してみたが、動作しないことは全く無かった。<br />
+そういえば、RSTピンは浮かせてはならない的な事が書かれてあった気がするが、接続忘れていても確か普通に動作した。あとでプルアップするか3.3Vに接続するかしておかねば。<br />
+RC遅延回路をユニバーサル基板に組んだ際、CH_ENに接続するところを間違えてRSTに接続してしまったり、RSTから抵抗を切り離そうとしたら、銅のパターンごと取れてしまったので最初から作り直したりして、結構時間がかかった。作り直したときも裏面だと左右か上下が反転するが、そのことで混乱して左右逆に抵抗を実装して抵抗を取るのも面倒なので1から作り直したりした。<br />
+没作が2枚出来てしまった&hellip;。</p>
+<p>ともかく、今のところ、安定して動くので、いろいろ試してみよう。<br />
+昇圧<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%B3%A5%F3%A5%D0%A1%BC%A5%BF%A1%BC">コンバーター</a>による動作も行えるか試してみなければ。<br />
+あるいは、9Vからシリーズレギュレーターで電源を得た場合とかも。<br />
+乾電池で何日持つんだろう。</p>

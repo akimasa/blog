@@ -1,0 +1,27 @@
+---
+layout: post
+status: publish
+published: true
+title: node-ptyのコンパイルが通らなかった
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 119
+wordpress_url: https://blog.akimasa.jp/?p=119
+date: '2017-05-23 17:46:41 +0900'
+date_gmt: '2017-05-23 08:46:41 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><em><a href="https://github.com/chjj/pty.js/issues/60">こちら</a></em>を参考して、まずはchocolateyで <a href="https://chocolatey.org/packages/vcbuildtools">vcbuildtools</a> を入れた。</p>
+<p>そして、次のようにしてnpmにVisual Studioのバージョンを指定しておいた。</p>
+<pre>npm i --save --msvs_version=2015 node-pty</pre>
+<p>次のようにすると、Visual Studioのバージョンが設定されて、上記の指定がなくても大丈夫になるらしいが、試していないので不明。</p>
+<pre>npm config set msvs_version 2015 --global</pre>
+<p>しかし、ビルドするだけのソフトで3GB持っていかれるんだな&hellip;</p>

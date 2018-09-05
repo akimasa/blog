@@ -1,0 +1,58 @@
+---
+layout: post
+status: publish
+published: true
+title: QEMUでtapなブリッジネットワークをsystemd-networkdで使う
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 57
+wordpress_url: https://blog.akimasa.jp/?p=57
+date: '2016-05-13 08:44:32 +0900'
+date_gmt: '2016-05-12 23:44:32 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>最初は上記URLの<a href="https://wiki.archlinuxjp.org/index.php/QEMU#QEMU_.E3.81.AE_Tap_.E3.83.8D.E3.83.83.E3.83.88.E3.83.AF.E3.83.BC.E3.82.AF">ArchWiki</a>の内容みたいにqemu-ifupやqemu-ifdownを使った方法でやっていたが、仮想マシンの起動と終了時にホストのネットワークが途切れるという問題が起こっていた。systemd-networkdで何とかしようと思ったが、どうもうまく行かなかったので、しばらくはArchWikiの様な方法で放置していたが、さっき調べ直して設定し直した。<br />
+そうしたら、ネットワークが途切れるという問題は解決した様だ。<br />
+/etc/systemd/network/*は次のようにした。<br />
+/etc/systemd/network/bridge.netdev</p>
+<pre>[NetDev]
+Name=br0
+Kind=bridge</pre>
+<p>/etc/systemd/network/bridge.network</p>
+<pre>[Match]
+Name=br0
+
+[Network]
+DHCP=ipv4
+
+[DHCP]
+ClientIdentifier=mac</pre>
+<p>/etc/systemd/network/en.network</p>
+<pre>[Match]
+Name=en*
+
+[Network]
+Bridge=br0
+</pre>
+<p>/etc/systemd/network/tap.netdev</p>
+<pre>[NetDev]
+Name=tap0
+Kind=tap</pre>
+<p>/etc/systemd/network/tap.network</p>
+<pre>[Match]
+Name=tap*
+
+[Network]
+Bridge=br0
+</pre>
+<p>そして、qemuに渡す引数は次のような感じだ。</p>
+<pre>-netdev tap,ifname="tap0",id=mynet0,script=no,downscript=no \
+-device virtio-net-pci,mac="(ランダムなMACアドレス)",netdev=mynet0</pre>

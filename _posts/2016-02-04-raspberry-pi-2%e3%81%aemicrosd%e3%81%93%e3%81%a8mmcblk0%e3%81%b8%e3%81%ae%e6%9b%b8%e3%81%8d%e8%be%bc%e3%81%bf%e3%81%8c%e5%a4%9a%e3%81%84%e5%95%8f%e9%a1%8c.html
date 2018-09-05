@@ -1,0 +1,29 @@
+---
+layout: post
+status: publish
+published: true
+title: Raspberry Pi 2のmicroSDことmmcblk0への書き込みが多い問題
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 40
+wordpress_url: https://blog.akimasa.jp/?p=40
+date: '2016-02-04 23:43:27 +0900'
+date_gmt: '2016-02-04 14:43:27 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>まずは、<code>blktrace -d /dev/mmcblk0 -o - | blkparse -i - -a write</code>なり<code>btrace -a write /dev/mmcblk0</code>なりで書き込みを行っているプロセスを特定&hellip;しようと思ったが、kworkerやbtrfs-transactiの書き込みが多いという事しかわからなかった&hellip;<br />
+<code>179,0 1 45 30.198921748 9215 M WS 3148800 + 64 [kworker/u8:2]</code><br />
+みたいな感じで出力されているのだが、<br />
+<code>3148800 + 64</code>の部分がどうもkB単位のオフセットとサイズでは無いかと思い、<code>dd if=/dev/mmcblk0 skip=3148800 count=64 bs=1024 | base64</code>で読み取ってみた。そしたら、軒並みAAAAAAAAAAAAAAAAAAAAAだった。/dev/zeroを読み込んでいるのと同じですな。ゼロクリアされている&hellip;。いくつか拾ってみて見ただけなので、もしかしたら何か有効なデータがある場所もあるのかもしれない。<br />
+いろいろ調べていたら、fatraceというコマンドで、どのプロセスが書き込みを行っているか調べられるらしい事がわかった。<br />
+しかし、apt-getで入れたfatraceは動いてくれなかった。Raspberry Pi 2なのに、Raspbianを使わずcdebootstrapでセットアップしたDebian 8が動いているのが原因かもしれない。実行すると、<code>Cannot initialize fanotify: Invalid argument</code>と怒られる。仕方が無いので、fatraceのコードを拾ってきて、fatraceのfanotify_initを<code>fanotify_init (0, KERNEL_O_LARGEFILE);</code>から<code>fanotify_init (0, 0);</code>に書き換えたらうまく動いてくれた。<br />
+<code>./fatrace&nbsp; | fgrep W</code>を動かしつつ、<code>btrace -a write /dev/mmcblk0</code>を眺めていたら原因がわかったっぽい。ログの書き込みが原因だった。ログファイルの書き込みの後に、kworkerやbtrfs-transactiの書き込みが始まっている様だ。btrfsをファイルシステムとして使っているのだが、btrfsはcopy on writeらしい。ログファイルが丸ごとコピーされて、追記されて、元あった空き領域は用済みなのでゼロクリアでもされたんだろうか。それだとしたら、書き込んだところを読み取ってもゼロなのが納得できる。<br />
+今のところ、SamsungのmicroSDカードは半年間、問題無く動き続いているが、これだけ書き込んでいればいつ壊れてもおかしくは無さそうな気がする。iostat情報だと、38KB/sで書き込みされているらしいので、半年で315GBWか&hellip;。microSDの容量は32GBなので、理想的にウェアレベリングされていても約10回は書き込んだことになる。あれ？思ったよりも少ない&hellip;。</p>

@@ -1,0 +1,26 @@
+---
+layout: post
+status: publish
+published: true
+title: letsencrypt-autoがなかなか自動化できない(本当に動くか未検証)
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 43
+wordpress_url: https://blog.akimasa.jp/?p=43
+date: '2016-02-06 19:02:50 +0900'
+date_gmt: '2016-02-06 10:02:50 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><code>./letsencrypt-auto run -d akimasa.jp -d www.akimasa.jp -d blog.akimasa.jp --renew-by-default</code>で自動化できると思いきや、いろいろと足りなかった。まず、crontabで実行するときの環境変数PATHが足りないようで、apacheが検出できない。<code>PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin</code>を適当なシェルスクリプトの最初に書いておいて、そっから実行するようにした。<br />
+ほかに、引数として<code>--no-redirect --non-interactive --apache</code>が足りていなかったので、ユーザーの操作を求められたり、プラグインの指定が無いと言われたりする。</p>
+<p><code>PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin<br />
+./letsencrypt-auto run -d akimasa.jp -d www.akimasa.jp -d blog.akimasa.jp --renew-by-default --no-redirect --non-interactive --apache</code>を実行するようにしておいたらなんとかなった。ただ、一定期間に発行できる証明書の数をオーバーしてしまって発行できない状態なので、これが本当に機能するのか謎である。<br />
+ちなみに、実際のシェルスクリプトはslackへの通知を行う<code>1> >(in="STDOUT:" postbot) 2> >(in="STDERR:" postbot)</code>とかがついたり、postbotの関数があったりする。process substitutionではfdが返ってくるとよく知らなくて、<code>echo "hogehoge" >(postbot)</code>をやっても、何か変なゴミが出力されているし、postbotで何故か標準入力を受け取れないなあとか思ってしまった。<code>echo "hogehoge" 1> >(postbot)</code>と書くべきだったな</p>

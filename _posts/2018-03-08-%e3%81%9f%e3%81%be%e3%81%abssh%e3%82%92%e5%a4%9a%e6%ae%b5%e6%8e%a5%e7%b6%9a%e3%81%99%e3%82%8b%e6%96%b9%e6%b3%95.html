@@ -1,0 +1,23 @@
+---
+layout: post
+status: publish
+published: true
+title: たまにSSHを多段接続する方法
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 259
+wordpress_url: https://blog.akimasa.jp/?p=259
+date: '2018-03-08 14:06:49 +0900'
+date_gmt: '2018-03-08 05:06:49 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>ググってみた結果では、~/.ssh/configに書くものばっかりだった。普段は中継せずに接続して、必要な時だけ多段接続したかった。下記のようにすれば良いだけだった。</p>
+<pre>ssh -o ProxyCommand="ssh proxyhost -W %h:%p" destinationhost</pre>

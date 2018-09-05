@@ -1,0 +1,93 @@
+---
+layout: post
+status: publish
+published: true
+title: OpenOCDをビルドする w/ Bash on Windows
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 147
+wordpress_url: https://blog.akimasa.jp/?p=147
+date: '2018-01-07 21:43:27 +0900'
+date_gmt: '2018-01-07 12:43:27 +0900'
+categories:
+- 未分類
+tags: []
+comments:
+- id: 82
+  author: OpenOCDをビルドする（再び） &#8211; blog.akimasa.jp
+  author_email: ''
+  author_url: https://blog.akimasa.jp/2018/01/08/build-openocd-again/
+  date: '2018-01-08 18:22:26 +0900'
+  date_gmt: '2018-01-08 09:22:26 +0900'
+  content: "[&#8230;] Bash on Ubuntu on Windowsでビルドすることもできる。昨日書いた情報が参考になればと思う。 [&#8230;]"
+---
+<h1>TL;DR</h1>
+<p><strong>どっかからビルド済みのバイナリを拾うと簡単。ただし古いかも。</strong></p>
+<p>Bash on WindowsのUbuntu 16.04LTSでビルドしてみている。</p>
+<h1>libusb-devが入っているとコンパイルエラーが出る</h1>
+<pre>In file included from src/jtag/drivers/arm-jtag-ew.c:26:0:
+src/jtag/drivers/usb_common.h:24:10: error: &lsquo;struct usb_dev_handle&rsquo; declared inside parameter list [-Werror]
+ struct usb_dev_handle **out);
+ ^
+src/jtag/drivers/usb_common.h:24:10: error: its scope is only this definition or declaration, which is probably not what you want [-Werror]
+src/jtag/drivers/arm-jtag-ew.c: In function &lsquo;armjtagew_usb_open&rsquo;:
+src/jtag/drivers/arm-jtag-ew.c:681:2: error: implicit declaration of function &lsquo;usb_init&rsquo; [-Werror=implicit-function-declaration]
+ usb_init();
+ ^
+src/jtag/drivers/arm-jtag-ew.c:686:32: error: passing argument 3 of &lsquo;jtag_usb_open&rsquo; from incompatible pointer type [-Werror=incompatible-pointer-types]
+ if (jtag_usb_open(vids, pids, &amp;dev) != ERROR_OK)
+ ^
+In file included from src/jtag/drivers/arm-jtag-ew.c:26:0:
+src/jtag/drivers/usb_common.h:23:5: note: expected &lsquo;struct usb_dev_handle **&rsquo; but argument is of type &lsquo;struct usb_dev_handle **&rsquo;
+ int jtag_usb_open(const uint16_t vids[], const uint16_t pids[],
+ ^
+src/jtag/drivers/arm-jtag-ew.c:696:2: error: implicit declaration of function &lsquo;usb_claim_interface&rsquo; [-Werror=implicit-function-declaration]
+ usb_claim_interface(dev, 0);
+ ^
+src/jtag/drivers/arm-jtag-ew.c: In function &lsquo;armjtagew_usb_close&rsquo;:
+src/jtag/drivers/arm-jtag-ew.c:709:2: error: implicit declaration of function &lsquo;usb_close&rsquo; [-Werror=implicit-function-declaration]
+ usb_close(armjtagew->usb_handle);
+ ^
+src/jtag/drivers/arm-jtag-ew.c: In function &lsquo;armjtagew_usb_write&rsquo;:
+src/jtag/drivers/arm-jtag-ew.c:746:11: error: implicit declaration of function &lsquo;usb_bulk_write&rsquo; [-Werror=implicit-function-declaration]
+ result = usb_bulk_write(armjtagew->usb_handle, ARMJTAGEW_EPT_BULK_OUT, \
+ ^
+src/jtag/drivers/arm-jtag-ew.c: In function &lsquo;armjtagew_usb_read&rsquo;:
+src/jtag/drivers/arm-jtag-ew.c:760:15: error: implicit declaration of function &lsquo;usb_bulk_read&rsquo; [-Werror=implicit-functMakefile:3202: ターゲット 'src/jtag/drivers/src_jtag_drivers_libocdjtagdrivers_la-arm-jtag-ew.lo' のレシピで失敗しました
+make[2]: *** [src/jtag/drivers/src_jtag_drivers_libocdjtagdrivers_la-arm-jtag-ew.lo] エラー 1
+make[2]: *** 未完了のジョブを待っています....
+mv -f src/jtag/drivers/.deps/src_jtag_drivers_libocdjtagdrivers_la-vsllink.Tpo src/jtag/drivers/.deps/src_jtag_drivers_l
+ibocdjtagdrivers_la-vsllink.Plo</pre>
+<p>libusb-1.0-0-devを入れて、libusb-devを消したらうまくいった？？</p>
+<p>[<a href="https://sourceforge.net/p/openocd/mailman/openocd-devel/thread/CAGjSPUDbScfLfn197djrPUF23wokRAtKzNQaVmXX%2B5viqo%2BXjA%40mail.gmail.com/#msg32243854">情報源</a>]</p>
+<h1>libusbが見つからない</h1>
+<p>mingwでWindowsのバイナリをコンパイルしようとしてもlibusbが見つからない様でこける。</p>
+<p>仕方がないのでlibusbのソースを落としてきて、展開した場所で下記を実行した。</p>
+<p><a href="http://www.neko.ne.jp/~freewing/raspberry_pi/raspberry_pi_3_build_openocd_windows/">情報源</a></p>
+<pre>./configure --host=i686-w64-mingw32 --prefix=/usr/i686-w64-mingw32
+sudo make install</pre>
+<h1>USB-Blasterに非対応</h1>
+<p>とりあえずビルドは通ったが、configureの結果からみてUSB-Blasterに非対応の模様。libFTDIを入れれば解決するっぽい。あとでやる</p>
+<h1>バイナリが走らん</h1>
+<pre>---------------------------
+openocd.exe - システム エラー
+---------------------------
+libgcc_s_sjlj-1.dll が見つからないため、コードの実行を続行できません。プログラムを再インストールすると、この問題が解決する可能性があります。 
+---------------------------
+OK 
+--------------------------</pre>
+<p>らしい。</p>
+<p><del>./configure --host=i686-w64-mingw32 --prefix=/usr/i686-w64-mingw32 C_FLAGS="-static-libgcc"でやり直している。</del></p>
+<p>CFLAGS="-static-libgcc -static-libstdc++" CPPFLAGS="-static-libgcc -static-libstdc++"<br />
+CXXFLAGS="-static-libgcc -static-libstdc++" LDFLAGS="-static-libgcc -static-libstdc++" ./configure --host=i686-w64-mingw32 --prefix=/usr/i686-w64-mingw32でやってみたが、objdump -pで見たら、DLLの依存が取れない。</p>
+<p><a href="http://nemuisan.blog.bai.ne.jp/?eid=212426">参考情報</a></p>
+<h1>libgcc_s_sjlj-1.dllがあった</h1>
+<p><code>/usr/lib/gcc/i686-w64-mingw32/5.3-win32/libgcc_s_sjlj-1.dll</code>に転がっていた。openocd.exeやlibusb-1.0.dllと一緒のところにコピーしたら普通に動いた。ただし、JTAGアダプタをつないでテストしていないので動くかどうかは謎。</p>
+<h1>MSYS2使えばよかったのでは？</h1>
+<p><del>MSYS2のパッケージマネージャを使えば一発で入るらしい情報を目にした。最初からこれを使えばよかったかもしれない。</del></p>
+<p>MSYS2でpacmanを使えば一発で入るが、安定版なので少し古い。結局、<a href="https://blog.akimasa.jp/2018/01/08/build-openocd-again/">自分でビルド</a>した。</p>

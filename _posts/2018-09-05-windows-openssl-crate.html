@@ -1,0 +1,102 @@
+---
+layout: post
+status: publish
+published: true
+title: Windowsでopensslクレートを使う
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 323
+wordpress_url: https://blog.akimasa.jp/?p=323
+date: '2018-09-05 01:04:26 +0900'
+date_gmt: '2018-09-04 16:04:26 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><a href="https://crates.io/crates/openssl">opensslクレート</a>をGNU ABIで使おうとして苦労した。</p>
+<p>MSVC ABIの場合は、特に苦労せず、すんなりとビルドできて、実行もできた。</p>
+<h1>MSYS2が必要</h1>
+<p>choco install msys2で入れた。chocolatey使っていなければ、普通に<a href="http://www.msys2.org/">MSYS2</a>をダウンロードしてインストールすればよいと思う。<strong>なお、今回はx86_64を使った。</strong></p>
+<h1>MINGW64と同じOpenSSLが必要</h1>
+<p><a href="https://slproweb.com/products/Win32OpenSSL.html">こちらのサイト</a>からダウンロードした。<strong>MSYS2に入っているOpenSSLとバージョンを合わせる必要がある。今回は<span class="ActiveBoxContent"><a href="https://slproweb.com/download/Win64OpenSSL-1_0_2p.exe">Win64 OpenSSL v1.0.2p</a></span>を利用した。</strong>v1.1系を入れると次のようなエラーが出てビルドできない。</p>
+<pre>$ OPENSSL_LIB_DIR=/c/OpenSSL-Win64 OPENSSL_INCLUDE_DIR=/c/OpenSSL-Win64/include /c/Users/Akimasa/.cargo/bin/cargo run
+   Compiling openssl-sys v0.9.35
+error: failed to run custom build command for `openssl-sys v0.9.35`
+process didn't exit successfully: `C:\Users\Akimasa\Documents\src\rust_openssl\target\debug\build\openssl-sys-8515c615cbb8f8fa\build-script-main` (exit code: 101)
+--- stdout
+cargo:rerun-if-env-changed=X86_64_PC_WINDOWS_GNU_OPENSSL_LIB_DIR
+cargo:rerun-if-env-changed=OPENSSL_LIB_DIR
+cargo:rerun-if-env-changed=X86_64_PC_WINDOWS_GNU_OPENSSL_INCLUDE_DIR
+cargo:rerun-if-env-changed=OPENSSL_INCLUDE_DIR
+cargo:rustc-link-search=native=C:/OpenSSL-Win64
+cargo:include=C:/OpenSSL-Win64/include
+OPT_LEVEL = Some("0")
+TARGET = Some("x86_64-pc-windows-gnu")
+HOST = Some("x86_64-pc-windows-gnu")
+TARGET = Some("x86_64-pc-windows-gnu")
+TARGET = Some("x86_64-pc-windows-gnu")
+HOST = Some("x86_64-pc-windows-gnu")
+CC_x86_64-pc-windows-gnu = None
+CC_x86_64_pc_windows_gnu = None
+HOST_CC = None
+CC = None
+TARGET = Some("x86_64-pc-windows-gnu")
+HOST = Some("x86_64-pc-windows-gnu")
+CFLAGS_x86_64-pc-windows-gnu = None
+CFLAGS_x86_64_pc_windows_gnu = None
+HOST_CFLAGS = None
+CFLAGS = None
+DEBUG = Some("true")
+TARGET = Some("x86_64-pc-windows-gnu")
+HOST = Some("x86_64-pc-windows-gnu")
+CFLAGS_x86_64-pc-windows-gnu = None
+CFLAGS_x86_64_pc_windows_gnu = None
+HOST_CFLAGS = None
+CFLAGS = None
+TARGET = Some("x86_64-pc-windows-gnu")
+HOST = Some("x86_64-pc-windows-gnu")
+CFLAGS_x86_64-pc-windows-gnu = None
+CFLAGS_x86_64_pc_windows_gnu = None
+HOST_CFLAGS = None
+CFLAGS = None
+running: "gcc.exe" "-O0" "-ffunction-sections" "-fdata-sections" "-g" "-fno-omit-frame-pointer" "-m64" "-I" "C:/OpenSSL-Win64/include" "-Wall" "-Wextra" "-E" "C:\Users\Akimasa\Documents\src\rust_openssl\target\debug\build\openssl-sys-e711f0916b783511\out\expando.c"
+exit code: 0
+cargo:rustc-cfg=osslconf="OPENSSL_NO_SSL3_METHOD"
+cargo:conf=OPENSSL_NO_SSL3_METHOD
+cargo:rustc-cfg=ossl101
+cargo:rustc-cfg=ossl102
+cargo:rustc-cfg=ossl102h
+cargo:rustc-cfg=ossl110
+cargo:rustc-cfg=ossl110f
+cargo:rustc-cfg=ossl110g
+cargo:version_number=1010009f
+cargo:version=110
+cargo:patch=f
+cargo:rerun-if-env-changed=X86_64_PC_WINDOWS_GNU_OPENSSL_LIBS
+cargo:rerun-if-env-changed=OPENSSL_LIBS
+cargo:rerun-if-env-changed=X86_64_PC_WINDOWS_GNU_OPENSSL_STATIC
+cargo:rerun-if-env-changed=OPENSSL_STATIC
+
+--- stderr
+thread 'main' panicked at 'OpenSSL libdir at `C:/OpenSSL-Win64` does not contain the required files to either statically or dynamically link OpenSSL', C:\Users\Akimasa\.cargo\registry\src\github.com-1ecc6299db9ec823\openssl-sys-0.9.35\build/main.rs:595:13
+note: Run with `RUST_BACKTRACE=1` for a backtrace.</pre>
+<h1>ビルドする</h1>
+<p><del>普通にVisual Studio CodeのPowerShellからcargo buildでビルドしたが&hellip;</del></p>
+<pre><del> Running `target\debug\rust_openssl.exe`</del>
+<del>error: process didn't exit successfully: `target\debug\rust_openssl.exe` (exit code: 3221225477)</del></pre>
+<p><del>こんなエラーが出て実行できないバイナリが出てくる。</del></p>
+<pre><del>$ OPENSSL_LIB_DIR=/c/OpenSSL-Win64 OPENSSL_INCLUDE_DIR=/c/OpenSSL-Win64/include /c/Users/Akimasa/.cargo/bin/cargo run</del></pre>
+<p><del>先ほどにも出てきたが、<strong>MINGW64</strong>を使って上記のコマンドを実行する必要がある。</del></p>
+<p><del><a href="https://www.reddit.com/r/rust/comments/3f2skh/hyper_on_windows_how_can_i_build_it/"><strong>こちらの投稿</strong></a>が参考になった</del></p>
+<p><del>念のためもう一度試したら、PowerShellでもビルドが通って、実行もできたので頭を抱えている。</del></p>
+<p>下記のようにOPENSSL_LIB_DIRとOPENSSL_INCLUDE_DIRを指定する必要がある。<strong>あと、MINGW64（自分の場合は"C:\tools\msys64\mingw64\bin"だった）へPATHを通す必要もある。</strong></p>
+<pre>$env:OPENSSL_LIB_DIR="C:\OpenSSL-Win64\"
+$env:OPENSSL_INCLUDE_DIR="C:\OpenSSL-Win64\include"
+$env:PATH="$env:PATH;C:\tools\msys64\mingw64\bin</pre>
+<p>&nbsp;</p>

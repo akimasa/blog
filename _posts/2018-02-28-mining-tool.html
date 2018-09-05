@@ -1,0 +1,128 @@
+---
+layout: post
+status: publish
+published: true
+title: マイニングツールをでっちあげた（作りかけ）
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 202
+wordpress_url: https://blog.akimasa.jp/?p=202
+date: '2018-02-28 00:19:34 +0900'
+date_gmt: '2018-02-27 15:19:34 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><del>2/28 16時追記:</del></p>
+<p><del>switcherは未完成で、使い物にならないので、使わない方が良いかもしれません。明日までに修正を出します&hellip;</del></p>
+<p>17時追記:</p>
+<p>修正版を出しました。再起動するか、rm switcherで今あるswitcherを消して実行しなおしてください。</p>
+<p>以下の問題が修正されました</p>
+<ul>
+<li>ベンチマークした結果の保存先ファイル名が間違っていた（switcherを終了して起動しなおした場合、本来はベンチマークを取り直さず前回の結果を流用するが、出来ていなかった）</li>
+<li>スイッチングの際にccminerやexcavatorを正しく終了していなかった</li>
+</ul>
+<p>19時追記:</p>
+<p>以下の問題が修正されました</p>
+<ul>
+<li>switcherが強制終了されたときにccminerやexcavatorが終了しない</li>
+</ul>
+<p>&nbsp;</p>
+<p>マイニングツールをでっちあげたので、操作説明みたいなのを書いてみました。突込みとか、ここがわかりづらいとか、あったら教えてください。ここでハマったとか、自分の環境の問題かもしれないけど問題があった場合でも大歓迎です。コメント欄にどうぞ（もしも、スパムフィルタに引っかかって消されたらすみません&hellip;）</p>
+<h1>特徴</h1>
+<p>ネットワークブートしてArch Linuxベースなのが特徴です。他には&hellip;</p>
+<ul>
+<li><del>無料</del></li>
+<li>タダで使おうと思えばタダで使える</li>
+<li>常に新しいドライバが入る（その代わり新しすぎてバグを踏む場合も&hellip;）</li>
+<li>ネットワークブートなのでHDD/SSDが不要で、代金をケチれる</li>
+<li>Windowsを購入する金額がケチれる</li>
+<li>割と手軽？？</li>
+<li>国産？（いろいろ海外のサーバーやサービスを使っているので微妙な所）</li>
+<li>サポートは日本語で対応</li>
+</ul>
+<p>すぐに思いつくのがこれくらい。</p>
+<p><!--more--></p>
+<h1>使い方</h1>
+<p>&nbsp;</p>
+<p><a href="https://github.com/akimasa/ArchDisklessMiner/releases/latest">最新のArchDisklessMinerのリリース</a>をダウンロードします</p>
+<p>ファイルサイズが書いてある.7zファイルをダウンロードしてください。</p>
+<p>適当な方法で展開します。</p>
+<p>tftp.exeを実行します</p>
+<p><img class="alignnone size-full wp-image-203" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27.png" alt="" width="1121" height="601" /></p>
+<p>次のような画面が出るので「<strong>アクセスを許可する</strong>」を押します</p>
+<p><img class="alignnone size-full wp-image-206" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-32.png" alt="" width="685" height="500" /> <img class="alignnone size-medium wp-image-207" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-31.png" alt="" width="300" height="210" /><br />
+次のような黒い画面が出ます。いろいろ流れますが気にしなくて大丈夫です。リグの起動が終わるまでは、閉じないでください。<img class="alignnone size-full wp-image-208" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-5.png" alt="" width="979" height="512" /></p>
+<p>設定->更新とセキュリティ->回復->今すぐ再起動<img class="alignnone size-full wp-image-211" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-6.png" alt="" width="1202" height="781" /><img class="alignnone size-full wp-image-213" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-8.png" alt="" width="1220" height="800" /></p>
+<p>デバイスを使用</p>
+<p><img class="alignnone size-full wp-image-214" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/IMG_2410.jpg" alt="" width="500" height="667" /></p>
+<p>私の環境ではNetwork Cardを選択すれば起動しました</p>
+<p><img class="alignnone size-full wp-image-215" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/IMG_2411.jpg" alt="" width="500" height="426" /></p>
+<p>もしもNetwork Cardがなかった場合はBIOSの設定に行きましょう</p>
+<p><img class="alignnone size-full wp-image-216" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/IMG_2412.jpg" alt="" width="500" height="667" /><img class="alignnone size-full wp-image-217" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/IMG_2414.jpg" alt="" width="500" height="443" /><img class="alignnone size-full wp-image-218" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/IMG_2415.jpg" alt="" width="500" height="402" /><img class="alignnone size-full wp-image-219" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/IMG_2416.jpg" alt="" width="500" height="177" /></p>
+<p>BIOS画面を開きます</p>
+<p>Network Stackを必要に応じてONにします。</p>
+<p>&nbsp;</p>
+<p><img class="alignnone size-full wp-image-220" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/IMG_2417.jpg" alt="" width="989" height="641" /> <img class="alignnone wp-image-221 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/IMG_2418.jpg" alt="" width="1000" height="674" /> <img class="alignnone wp-image-222 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/IMG_2419.jpg" alt="" width="1000" height="593" /></p>
+<p>起動デバイス選択画面で、PXEを選んで起動してください。</p>
+<p>マザーボードによっては、ネットワークブートをONにした後、<strong style="font-size: 200%;">保存して再起動</strong>しなければPXEが現れない場合があります。</p>
+<p>また、PXEの代わりに<strong style="font-size: 200%;">IBA</strong>と書かれている場合もあります。<strong style="font-size: 200%;">UEFIのネットワークブートは対応していない</strong>ので選ばないでください。</p>
+<p><img class="alignnone wp-image-223 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/IMG_2420.jpg" alt="" width="1000" height="584" /></p>
+<p>こんな感じの画面になったらうまくいっています</p>
+<p><img class="alignnone size-full wp-image-227" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/IMG_2421.jpg" alt="" width="1000" height="479" /></p>
+<p><img class="alignnone size-full wp-image-229" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/IMG_2424.jpg" alt="" width="1000" height="569" /></p>
+<p>ここで止まってしまったら、最新版をダウンロードしなおしてください</p>
+<p><img class="alignnone size-full wp-image-228" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/IMG_2425.jpg" alt="" width="1000" height="617" /></p>
+<p><a href="https://github.com/akimasa/DisklessMinerAdmin/releases">DisklessMinerAdminの最新版</a>をダウンロードします。</p>
+<p>自動生成された最新版をダウンロードして大丈夫です。</p>
+<p>disklessmineradmin-1.0.0-ia32-win.7zというファイル名になっていると思います。</p>
+<p>ダウンロードしてて展開すると、いろいろファイルがあります。</p>
+<p><img class="alignnone wp-image-231 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-9.png" alt="" width="1121" height="601" /></p>
+<p>disklessmineradminというファイル名のアプリケーションを開きます</p>
+<p><img class="alignnone wp-image-232 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-11.png" alt="" width="1121" height="601" /></p>
+<p>起動すると、ファイアーウォールの警告が出ます。tcp:3000をlistenします。他のPCから操作したい場合はhttp://disklessmineradminを起動したPC:3000/で出来ますが、あまり意味ないかもしれません。将来的に、スマートフォンで管理できるようにするかもしれないし、しないかもしれません。</p>
+<p><img class="alignnone wp-image-233 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-13.png" alt="" width="615" height="435" /></p>
+<p>適当にリグを選びます。出てこなかったら、更新を何回か叩いてください。それでもだめなら、再検出を1回押して、更新を叩いてください。それでもだめならPCを再起動してください。</p>
+<p><img class="alignnone wp-image-234 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-14.png" alt="" width="786" height="593" /></p>
+<p>上の画面でリグのIPアドレスやMACアドレスを選択して、送信を押すと、次の画面になります。</p>
+<p><img class="alignnone wp-image-235 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-15.png" alt="" width="786" height="593" /></p>
+<p>一番下なので、上の方に行きます。</p>
+<p><img class="alignnone wp-image-236 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-16.png" alt="" width="786" height="593" /></p>
+<p>excavatorをインストールをクリック（<a href="https://github.com/nicehash/excavator/blob/master/excavator-EULA.txt">Nicehashのライセンス条項</a>を必ず読んで同意したうえで行ってください）</p>
+<p>下の方に行って様子を見てください</p>
+<p><img class="alignnone wp-image-237 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-17.png" alt="" width="786" height="593" /></p>
+<p>こんな画面になったら次へ進みます</p>
+<p><img class="alignnone wp-image-238 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-18.png" alt="" width="786" height="593" /></p>
+<p>上に戻って、ethminerをインストールをクリックして、</p>
+<p><img class="alignnone wp-image-239 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-19.png" alt="" width="786" height="593" /></p>
+<p>こんな感じの画面になったら終了なので、また上に戻ります</p>
+<p><img class="alignnone wp-image-240 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-20.png" alt="" width="786" height="593" /></p>
+<p>ccminerをインストールします</p>
+<p><img class="alignnone wp-image-241 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-21.png" alt="" width="786" height="593" /></p>
+<p>GPU情報を取得を押します</p>
+<p><img class="alignnone wp-image-242 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-22.png" alt="" width="786" height="593" /></p>
+<p>200WがPower Limitです。</p>
+<p>26.37Wが今の消費電力です。</p>
+<p><img class="alignnone wp-image-243 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-23.png" alt="" width="786" height="593" /></p>
+<p>100を入れて、Power Limit変更を押します。</p>
+<p>そして、<strong style="font-size: 200%;">GPU情報を取得を押す</strong>と、最新の情報に更新されます。</p>
+<p><img class="alignnone wp-image-244 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-24.png" alt="" width="786" height="593" /></p>
+<p>さて、マイニングしてみましょう。</p>
+<p>自分のBTCウォレットのアドレスを入れます。</p>
+<p>&nbsp;</p>
+<p><img class="alignnone wp-image-245 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-25.png" alt="" width="786" height="593" /></p>
+<p>なんか勝手に進みます。</p>
+<p><img class="alignnone wp-image-246 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-26.png" alt="" width="786" height="593" /></p>
+<p>このようになったら、switcherが起動しています。勝手にベンチマークして、勝手にマイニングします。</p>
+<p><img class="alignnone wp-image-247 size-full" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-27.png" alt="" width="786" height="593" /></p>
+<p>switcherのログ確認を押すと、ログが流れるようになります。</p>
+<p><img class="alignnone size-medium wp-image-248" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-28.png" alt="" width="300" height="226" /></p>
+<p>こんな感じでベンチマークしていることが確認できます</p>
+<p><img class="alignnone size-full wp-image-230" src="https://blog.akimasa.jp/wp-content/uploads/2018/02/2018-02-27-29.png" alt="" width="786" height="593" /></p>
+<p>&nbsp;</p>

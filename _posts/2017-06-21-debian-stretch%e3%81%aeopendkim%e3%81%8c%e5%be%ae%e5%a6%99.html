@@ -1,0 +1,23 @@
+---
+layout: post
+status: publish
+published: true
+title: debian stretchのopendkimが微妙
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 128
+wordpress_url: https://blog.akimasa.jp/?p=128
+date: '2017-06-21 22:38:05 +0900'
+date_gmt: '2017-06-21 13:38:05 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><a href="https://serverfault.com/questions/847435/cant-change-opendkim-socket/847439">https://serverfault.com/questions/847435/cant-change-opendkim-socket/847439</a></p>
+<p>/etc/default/opendkimのSOCKET=inet:8891@localhostを編集して、<code>/lib/opendkim/opendkim.service.generate</code>を実行し、systemctl daemon-reloadして、opendkimを再起動しないと、inetのsocketでlistenしてくれなかった。</p>

@@ -1,0 +1,173 @@
+---
+layout: post
+status: publish
+published: true
+title: net-radio-archiveを入れてみる
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 31
+wordpress_url: https://blog.akimasa.jp/2015/10/09/20151009163427/
+date: '2015-10-09 16:34:27 +0900'
+date_gmt: '2015-10-09 07:34:27 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<pre># apt-get update
+# apt-get install rtmpdump libav-tools <a class="keyword" href="http://d.hatena.ne.jp/keyword/swftools">swftools</a> <a class="keyword" href="http://d.hatena.ne.jp/keyword/ruby">ruby</a> git
+# gem install bundler
+# adduser radioarc
+# su - radioarc
+$ git clone <a href="https://github.com/yayugu/net-radio-archive.git">https://github.com/yayugu/net-radio-archive.git</a>
+$ cd net-radio-archive
+$ git submodule update --init --recursive
+</pre>
+<p>ここまで実行したら次のようなエラーが出る。</p>
+<pre>$ git submodule update --init --recursive
+Cloning into '<a class="keyword" href="http://d.hatena.ne.jp/keyword/niconico">niconico</a>'...
+Permission denied (publickey).
+fatal: Could not read from remote repository.
+Please make sure you have the correct <a class="keyword" href="http://d.hatena.ne.jp/keyword/access">access</a> rights
+and the repository exists.
+Clone of 'git@<a class="keyword" href="http://d.hatena.ne.jp/keyword/github">github</a>.com:yayugu/<a class="keyword" href="http://d.hatena.ne.jp/keyword/niconico">niconico</a>.git' into submodule path '<a class="keyword" href="http://d.hatena.ne.jp/keyword/niconico">niconico</a>' failed
+</pre>
+<p>ニコ動は取らないのでとりあえず無視しておく。</p>
+<pre>$ bundle install --without development test agon
+</pre>
+<p>しまった。root権限を求められた。</p>
+<pre># bundle install --without development test agon
+</pre>
+<p>rootで実行してみた。</p>
+<pre>Installing unf_ext 0.0.7.1 with native extensions
+Gem::Ext::BuildError: <a class="keyword" href="http://d.hatena.ne.jp/keyword/ERROR">ERROR</a>: Failed to build gem native extension.
+/usr/bin/ruby2.1 extconf.rb
+mkmf.rb can't find header files for <a class="keyword" href="http://d.hatena.ne.jp/keyword/ruby">ruby</a> at /usr/lib/<a class="keyword" href="http://d.hatena.ne.jp/keyword/ruby">ruby</a>/include/<a class="keyword" href="http://d.hatena.ne.jp/keyword/ruby">ruby</a>.h
+extconf failed, exit code 1
+Gem files will remain installed in /var/lib/gems/2.1.0/gems/unf_ext-0.0.7.1 for inspection.
+Results logged to /var/lib/gems/2.1.0/extensions/<a class="keyword" href="http://d.hatena.ne.jp/keyword/x86">x86</a>_64-<a class="keyword" href="http://d.hatena.ne.jp/keyword/linux">linux</a>/2.1.0/unf_ext-0.0.7.1/gem_make.out
+An <a class="keyword" href="http://d.hatena.ne.jp/keyword/error">error</a> occurred while installing unf_ext (0.0.7.1), and Bundler cannot
+continue.
+Make sure that `gem install unf_ext -v '0.0.7.1'` succeeds before bundling.
+</pre>
+<p>何かが足りない。<a class="keyword" href="http://d.hatena.ne.jp/keyword/ruby">ruby</a>-develって無いのかな。<br />
+<a href="https://packages.debian.org/search?searchon=contents&keywords=ruby.h&mode=path&suite=stable&arch=any">Debian -- Package Contents Search Results -- ruby.h</a>で調べてみた。</p>
+<pre># apt-get install <a class="keyword" href="http://d.hatena.ne.jp/keyword/ruby">ruby</a>-dev
+</pre>
+<p><a class="keyword" href="http://d.hatena.ne.jp/keyword/ruby">ruby</a>-devだった。</p>
+<pre>You have to install development tools first.
+</pre>
+<p>あー、build-essentialが入っていないか。</p>
+<pre># apt-get install build-essential
+</pre>
+<p>これで、unf_ext 0.0.7.1 with native extensionsが入った。<br />
+のこぎりのインストールにしばらく時間がかかる。</p>
+<pre class="code" data-lang="" data-unlink>Installing mysql2 0.3.17 with native extensions
+Gem::Ext::BuildError: ERROR: Failed to build gem native extension.
+/usr/bin/ruby2.1 extconf.rb
+checking for ruby/thread.h... yes
+checking for rb_thread_call_without_gvl() in ruby/thread.h... yes
+checking for rb_thread_blocking_region()... yes
+checking for rb_wait_for_single_fd()... yes
+checking for rb_hash_dup()... yes
+checking for rb_intern3()... yes
+checking for mysql_query() in -lmysqlclient... no
+checking for main() in -lm... yes
+checking for mysql_query() in -lmysqlclient... no
+checking for main() in -lz... no
+checking for mysql_query() in -lmysqlclient... no
+checking for main() in -lsocket... no
+checking for mysql_query() in -lmysqlclient... no
+checking for main() in -lnsl... yes
+checking for mysql_query() in -lmysqlclient... no
+checking for main() in -lmygcc... no
+checking for mysql_query() in -lmysqlclient... no
+*** extconf.rb failed ***
+Could not create Makefile due to some reason, probably lack of necessary
+libraries and/or headers.  Check the mkmf.log file for more details.  You may
+need configuration options.</pre>
+<p>lmysqlclientが足りないか。</p>
+<pre># apt-get install libmariadb2
+</pre>
+<p>こうかな。<br />
+まだ足りない。</p>
+<pre># apt-get install libmariadbd-dev
+</pre>
+<p>違った&hellip;</p>
+<pre># apt-get install <a class="keyword" href="http://d.hatena.ne.jp/keyword/mariadb">mariadb</a>-client
+</pre>
+<pre># apt-get install libmariadb-client-<a class="keyword" href="http://d.hatena.ne.jp/keyword/lgpl">lgpl</a>-dev
+</pre>
+<p>これも違う&hellip;</p>
+<pre># gem install mysql2
+</pre>
+<pre># apt-get install libmysqld-dev
+</pre>
+<p>これだとうまく行った。<br />
+どうやら<a class="keyword" href="http://d.hatena.ne.jp/keyword/mysql">mysql</a>にしか対応していない？</p>
+<pre>$ cp config/database.example.yml config/database.yml
+$ cp config/settings.example.yml config/settings.yml
+$ <a class="keyword" href="http://d.hatena.ne.jp/keyword/vim">vim</a>.tiny config/database.yml
+$ <a class="keyword" href="http://d.hatena.ne.jp/keyword/vim">vim</a>.tiny config/settings.yml
+</pre>
+<pre>apt-get install <a class="keyword" href="http://d.hatena.ne.jp/keyword/mariadb">mariadb</a>-server
+</pre>
+<p><a class="keyword" href="http://d.hatena.ne.jp/keyword/mariadb">mariadb</a>のrootパスワードの設定を求められるので、head -c 16 /dev/random | <a class="keyword" href="http://d.hatena.ne.jp/keyword/base64">base64</a>で生成した。</p>
+<pre>$ <a class="keyword" href="http://d.hatena.ne.jp/keyword/RAILS">RAILS</a>_ENV=production bundle exec rake db:create db:migrate
+Could not find gem '<a class="keyword" href="http://d.hatena.ne.jp/keyword/niconico">niconico</a> (>= 0) <a class="keyword" href="http://d.hatena.ne.jp/keyword/ruby">ruby</a>' in source at <a class="keyword" href="http://d.hatena.ne.jp/keyword/niconico">niconico</a>.
+Source does not contain any versions of '<a class="keyword" href="http://d.hatena.ne.jp/keyword/niconico">niconico</a> (>= 0) <a class="keyword" href="http://d.hatena.ne.jp/keyword/ruby">ruby</a>'
+</pre>
+<p>orz<br />
+<a class="keyword" href="http://d.hatena.ne.jp/keyword/niconico">niconico</a>が無いとダメなのか&hellip;<br />
+困った。<br />
+<a class="keyword" href="http://d.hatena.ne.jp/keyword/SSH">SSH</a>経由でサブモジュールを読み込むらしいが、これは<a class="keyword" href="http://d.hatena.ne.jp/keyword/SSH">SSH</a>鍵による認証が必要だ。<br />
+<a class="keyword" href="http://d.hatena.ne.jp/keyword/SSH">SSH</a>鍵を管理するのはなかなか面倒なんだよな。</p>
+<p>16:56追記:<br />
+鍵を作って<a class="keyword" href="http://d.hatena.ne.jp/keyword/github">github</a>に登録した。</p>
+<pre>$ git submodule update --init --recursive
+$ <a class="keyword" href="http://d.hatena.ne.jp/keyword/RAILS">RAILS</a>_ENV=production bundle exec rake db:create db:migrate
+rake aborted!
+ExecJS::RuntimeUnavailable: Could not find a <a class="keyword" href="http://d.hatena.ne.jp/keyword/JavaScript">JavaScript</a> runtime. See <a href="https://github.com/sstephenson/execjs">https://github.com/sstephenson/execjs</a> for a list of available runtimes.
+</pre>
+<p>うぇ。何かが足りない。</p>
+<pre># apt-get install nodejs
+</pre>
+<p>jessie標準なので古そうだが動いて欲しい。</p>
+<pre>$ <a class="keyword" href="http://d.hatena.ne.jp/keyword/RAILS">RAILS</a>_ENV=production bundle exec rake db:create db:migrate
+== 20150515174349 CreateJob: migrating ========================================
+== 20150515174349 CreateJob: migrated (0.0141s) ===============================
+== 20150515174821 CreateOnsenProgram: migrating ===============================
+== 20150515174821 CreateOnsenProgram: migrated (0.0123s) ======================
+== 20150515174949 CreateHibikiProgram: migrating ==============================
+== 20150515174949 CreateHibikiProgram: migrated (0.0112s) =====================
+== 20150521174524 CreateAnitamaProgram: migrating =============================
+== 20150521174524 CreateAnitamaProgram: migrated (0.0113s) ====================
+== 20150527135411 CreateNiconicoLivePrograms: migrating =======================
+== 20150527135411 CreateNiconicoLivePrograms: migrated (0.0120s) ==============
+== 20150602100911 NicoAddColumn: migrating ====================================
+== 20150602100911 NicoAddColumn: migrated (0.0361s) ===========================
+== 20150607130411 KeyValue: migrating =========================================
+== 20150607130411 KeyValue: migrated (0.0115s) ================================
+== 20151002075432 CreateAgonProgram: migrating ================================
+== 20151002075432 CreateAgonProgram: migrated (0.0146s) =======================
+</pre>
+<p>うまく行ったっぽい。</p>
+<pre>$ bundle exec whenever --update-crontab
+[write] crontab file updated
+</pre>
+<p>これでセットアップ完了か？</p>
+<p>新幹線の<a class="keyword" href="http://d.hatena.ne.jp/keyword/%CC%B5%C0%FELAN">無線LAN</a>の遅延がひどすぎて、作業がなかなか進まなかったが、なんとか完了したようだ。</p>
+<div class="section">
+<h3 id="t">アップデート</h3>
+<pre>$ git pull origin master
+$ git submodule update --init --recursive
+$ bundle install --without development test agon
+$ <a class="keyword" href="http://d.hatena.ne.jp/keyword/RAILS">RAILS</a>_ENV=production bundle exec rake db:migrate
+$ bundle exec whenever --update-crontab
+</pre>
+</div>

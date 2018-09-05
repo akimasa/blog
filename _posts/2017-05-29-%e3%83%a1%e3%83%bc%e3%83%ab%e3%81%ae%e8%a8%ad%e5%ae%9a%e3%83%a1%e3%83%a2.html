@@ -1,0 +1,62 @@
+---
+layout: post
+status: publish
+published: true
+title: メールの設定メモ
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 125
+wordpress_url: https://blog.akimasa.jp/?p=125
+date: '2017-05-29 22:54:22 +0900'
+date_gmt: '2017-05-29 13:54:22 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>雑だけどメモを残しておく</p>
+<h1>クライアント側</h1>
+<pre>apt install msmtp msmtp-mta</pre>
+<p>/etc/aliases</p>
+<pre>default: hogehoge@hogehoge.hoge</pre>
+<p>/etc/msmtprc</p>
+<pre># Example for a system wide configuration file
+
+# A system wide configuration file is optional.
+# If it exists, it usually defines a default account.
+# This allows msmtp to be used like /usr/sbin/sendmail.
+account default
+
+# The SMTP smarthost.
+host hogehoge.hoge
+port 587
+from hogehoge@hogehoge.hoge
+user hogehoge@hogehoge.hoge
+password password
+auth on
+
+# Construct envelope-from addresses of the form "user@oursite.example".
+#auto_from on
+#maildomain oursite.example
+
+# Use TLS.
+tls on
+tls_trust_file /etc/ssl/certs/ca-certificates.crt
+
+# Syslog logging with facility LOG_MAIL instead of the default LOG_USER.
+syslog LOG_MAIL
+
+aliases /etc/aliases</pre>
+<h1>サーバー側</h1>
+<pre>doveadm pw -s SSHA256
+#ハッシュを通したパスワードを得る
+vim.tiny /etc/dovecot/users
+vim.tiny /etc/postfix/virtual
+#周りに合わせて適当にユーザーを追加
+postmap /etc/postfix/virtual
+#そして、dovecotとpostfixをrestartしたりreloadしたりする</pre>

@@ -1,0 +1,133 @@
+---
+layout: post
+status: publish
+published: true
+title: 改造版picberryの-fにつけるオプション(family)の表
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 89
+wordpress_url: https://blog.akimasa.jp/?p=89
+date: '2017-03-19 21:32:23 +0900'
+date_gmt: '2017-03-19 12:32:23 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><strong>今では、この表は、あまり意味がない。</strong></p>
+<table>
+<tbody>
+<tr>
+<td>&nbsp;Model</td>
+<td>subfamily</td>
+<td>family</td>
+</tr>
+<tr>
+<td>PIC10F320</td>
+<td>SF_PIC10F322</td>
+<td>pic10f322</td>
+</tr>
+<tr>
+<td>PIC10F322</td>
+<td>SF_PIC10F322</td>
+<td>pic10f322</td>
+</tr>
+<tr>
+<td>PIC10LF320</td>
+<td>SF_PIC10F322</td>
+<td>pic10f322</td>
+</tr>
+<tr>
+<td>PIC16F1826</td>
+<td>SF_PIC12F1822</td>
+<td>pic12f1822</td>
+</tr>
+<tr>
+<td>PIC16F1827</td>
+<td>SF_PIC12F1822</td>
+<td>pic12f1822</td>
+</tr>
+<tr>
+<td>PIC16LF1826</td>
+<td>SF_PIC16LF1826</td>
+<td>pic16lf1826</td>
+</tr>
+<tr>
+<td>PIC16LF1827</td>
+<td>SF_PIC16LF1826</td>
+<td>pic16lf1826</td>
+</tr>
+<tr>
+<td>PIC16F1823</td>
+<td>SF_PIC12F1822</td>
+<td>pic12f1822</td>
+</tr>
+<tr>
+<td>PICLF1823</td>
+<td>SF_PIC12F1822</td>
+<td>pic12f1822</td>
+</tr>
+<tr>
+<td>PIC12F1822</td>
+<td>SF_PIC12F1822</td>
+<td>pic12f1822</td>
+</tr>
+<tr>
+<td>PIC12LF1822</td>
+<td>SF_PIC12F1822</td>
+<td>pic12f1822</td>
+</tr>
+<tr>
+<td>PIC16F1824</td>
+<td>SF_PIC12F1822</td>
+<td>pic12f1822</td>
+</tr>
+<tr>
+<td>PIC16LF1824</td>
+<td>SF_PIC12F1822</td>
+<td>pic12f1822</td>
+</tr>
+<tr>
+<td>PIC16F1825</td>
+<td>SF_PIC12F1822</td>
+<td>pic12f1822</td>
+</tr>
+<tr>
+<td>PIC16LF1825</td>
+<td>SF_PIC12F1822</td>
+<td>pic12f1822</td>
+</tr>
+<tr>
+<td>PIC16F1828</td>
+<td>SF_PIC12F1822</td>
+<td>pic12f1822</td>
+</tr>
+<tr>
+<td>PIC16LF1828</td>
+<td>SF_PIC12F1822</td>
+<td>pic12f1822</td>
+</tr>
+<tr>
+<td>PIC16F1829</td>
+<td>SF_PIC12F1822</td>
+<td>pic12f1822</td>
+</tr>
+<tr>
+<td>PIC16LF1829</td>
+<td>SF_PIC12F1822</td>
+<td>pic12f1822</td>
+</tr>
+</tbody>
+</table>
+<p><del>今の段階でのPICの種類と引数につけるfamilyの対応表を出してみた。familyが-fオプションにつける文字列だ。表が間違っていないと信じたい。</del></p>
+<p><del>例えば、PIC10LF320に書き込む場合、表より、familyはpic10f322になるので、以下のようにすれば良い。</del></p>
+<pre><del>./picberry -f pic10f322 -w hoge.hex</del></pre>
+<p>PIC10F322とPIC12LF1822しか持っていないので、この2種類でしかテストしていない。しかも、テストは単純なLチカしか行っていない。どんなプログラムでも本当にちゃんと書き込めているのか、全くわからない。長いプログラムは最後の方とかまでちゃんと書き込めているのかなんとなく不安だ。</p>
+<p>ああ、そうだ。今回のプログラミングでは<strong>Low-Voltage</strong> ICSP&trade; modeに<strong>しか</strong>対応していない。高電圧のプログラミングはいずれ対応したいと思っている。その前に、まずはチャージポンプを完成させなければならない&hellip;</p>
+<p>今度の週末にでも秋月に行って、PIC16F182[3579]を買おうと思っている。買ったらうまくいくかどうかテストしてみる予定だ。</p>
+<p>USB対応のPICも試してみたい。それの書き込みもできるようにするかもしれない。</p>

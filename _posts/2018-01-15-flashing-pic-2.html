@@ -1,0 +1,133 @@
+---
+layout: post
+status: publish
+published: true
+title: Raspberry PiでPICマイコンを焼く
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 188
+wordpress_url: https://blog.akimasa.jp/?p=188
+date: '2018-01-15 17:05:15 +0900'
+date_gmt: '2018-01-15 08:05:15 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>2018/5/21追記:</p>
+<p><a href="https://neuralassembly.blogspot.jp/2016/10/raspberry-pigpiopic.html">公式サイト</a>や<a href="https://neuralassembly.blogspot.jp/2016/10/raspberry-pigpiopic.html">紹介しているブログ</a>を見てもらうと早いが、pickleが幅広いPICマイコンに対応している。下記で紹介されている方法では、限られたPICマイコンしか書き込みができない。pickleを使ったほうが、いろんなPICマイコンに対応していて便利かもしれないのでご参考に</p>
+<p>&nbsp;</p>
+<p>何かわからないところがあったらコメントを書くか<a href="https://twitter.com/akimasa2000">@akimasa2000</a>にでも話しかけてくれると、答えるかも？</p>
+<h1>インストール</h1>
+<p>まずは適当なRaspberry Piを用意して、Raspbianを入れておく。そして、build-essential（おそらく初期で入っている）とgit（git cloneでダウンロードしない場合は不要）を入れる。その後、リポジトリを取得して、ビルドする。</p>
+<pre>sudo apt update
+sudo apt install build-essential git
+git clone https://github.com/WallaceIT/picberry
+cd picberry
+make raspberrypi #詳細は下表を参照</pre>
+<p>picberryの説明に次のような表がある。</p>
+<table>
+<thead>
+<tr>
+<th><em>TARGET</em></th>
+<th>Processor/Board</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>raspberrypi</td>
+<td>Raspberry Pi v1 or Zero</td>
+</tr>
+<tr>
+<td>raspberrypi2</td>
+<td>Raspberry Pi v2 or v3</td>
+</tr>
+<tr>
+<td>am335x</td>
+<td>Boards based on TI AM335x (BeagleBone)</td>
+</tr>
+<tr>
+<td>a10</td>
+<td>Boards based on Allwinner A10 (Cubieboard)</td>
+</tr>
+</tbody>
+</table>
+<p>自分の使うRasPiが1だったり、Zeroの場合はmake raspberrypiと、2や3の場合はmake raspberrypi2でビルドする。</p>
+<h1>接続</h1>
+<p><img class="alignnone size-full wp-image-189" src="https://blog.akimasa.jp/wp-content/uploads/2018/01/73770c58fa1ed23e442adceab80170ef.png" alt="" width="1140" height="972" /></p>
+<p>上の図はattiny85だと書いてあるが、これをPIC12F322だと思って欲しい。左に切り欠きがあって、左下に1ピンのサインがある。</p>
+<p><img class="alignnone size-full wp-image-190" src="https://blog.akimasa.jp/wp-content/uploads/2018/01/picberryfig.png" alt="" width="566" height="193" /></p>
+<p>電源以外に接続する必要があるピンはデータシートを参照してほしい。</p>
+<p>picberryの説明に次のようにある</p>
+<pre>If not specified in the command line, the default GPIOs <-> PIC connections are the following:
+
+for the Raspberry Pi:
+
+PGC  <-> GPIO23
+PGD  <-> GPIO24
+MCLR <-> GPIO18
+</pre>
+<h1>操作する</h1>
+<p>picberryのディレクトリに実行ファイルが出来上がっていると思うので、実行する。</p>
+<p>次のようなメッセージが出た場合は、接続が間違っているか何か問題がある。</p>
+<pre>sudo ./picberry -f pic10f322 -b
+picberry PIC Programmer v0.2
+Device ID: 0x0
+ERROR: unknown/unsupported device or programmer not connected.
+Press ENTER to exit program mode...</pre>
+<h2>ブランクチェック</h2>
+<p>新品のPIC10F322を使った場合は、次のようなメッセージが出てくる。</p>
+<pre>sudo ./picberry -f pic10f322 -b
+picberry PIC Programmer v0.2
+Device Name: PIC10F322
+Device ID: 0x0000014c
+Revision: 0x00000002
+Blank check...chip is blank.
+Press ENTER to exit program mode...</pre>
+<h2>バルクイレース</h2>
+<pre> $ sudo ./picberry -f pic10f322 -e
+picberry PIC Programmer v0.2
+Device Name: PIC10F322
+Device ID: 0x0000014c
+Revision: 0x00000002
+Bulk Erase...DONE!
+Press ENTER to exit program mode...</pre>
+<h2>書き込み</h2>
+<pre> $ sudo ./picberry -f pic10f322 -e
+picberry PIC Programmer v0.2
+Device Name: PIC10F322
+Device ID: 0x0000014c
+Revision: 0x00000002
+Bulk Erase...DONE!
+Press ENTER to exit program mode...</pre>
+<h1>対応しているPIC</h1>
+<p><a href="https://github.com/WallaceIT/picberry/pull/6">Pull Request</a>にあるように、次のデバイスでの読み書きはテストした。秋月で入手できた奴だけだ&hellip;。</p>
+<ul>
+<li>PIC10F322</li>
+<li>PIC12LF1822</li>
+<li>PIC16F1823</li>
+<li>PIC16F1825</li>
+<li>PIC16F1827</li>
+<li>PIC16F1828</li>
+<li>PIC16F1829</li>
+</ul>
+<p>次のデバイスでもテストは行っていないが可能なはず。（順番は昇順でなく適当なので注意）</p>
+<ul>
+<li>PIC10F320</li>
+<li>PIC10LF320</li>
+<li>PIC16F1826</li>
+<li>PIC16LF1826</li>
+<li>PIC16LF1827</li>
+<li>PICLF1823</li>
+<li>PIC12F1822</li>
+<li>PIC16F1824</li>
+<li>PIC16LF1824</li>
+<li>PIC16LF1825</li>
+<li>PIC16LF1828</li>
+<li>PIC16LF1829</li>
+</ul>

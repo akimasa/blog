@@ -1,0 +1,72 @@
+---
+layout: post
+status: publish
+published: true
+title: RasPiでiSCSIを使うためカーネルをビルドした
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 184
+wordpress_url: https://blog.akimasa.jp/?p=184
+date: '2018-01-15 00:40:19 +0900'
+date_gmt: '2018-01-14 15:40:19 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<h1>結論</h1>
+<p><a href="https://www.raspberrypi.org/documentation/linux/kernel/building.md">Kernel building</a>を参照してカーネルをビルド、インストールすればよい。</p>
+<p>menuconfigで、Device Drivers ---> Generic Target Core Mod (TCM) and ConfigFS Infrastructureを有効にし、Generic Target Core Mod (TCM) and ConfigFS Infrastructureの中も必要なモジュールを有効にして、ビルドする。</p>
+<p>あとはKernel buildingに従ってSDカードに転送する。</p>
+<h1>本文</h1>
+<p><a href="https://www.raspberrypi.org/documentation/linux/kernel/building.md">Kernel building</a>を参照していろいろ準備する。<br />
+Bash on Windowsで入るUbuntuではbc, build-essential, libncurses5-devが必要だった。<br />
+説明にある通り進めて、make bcm2709_defconfigのあとにmenuconfigに入る。<br />
+下記の感じ。</p>
+<pre>git clone https://github.com/raspberrypi/tools ~/tools
+echo PATH=\$PATH:~/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin >> ~/.bashrc
+source ~/.bashrc
+git clone --depth=1 https://github.com/raspberrypi/linux
+cd linux
+KERNEL=kernel
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- bcm2709_defconfig
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- menuconfig
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- zImage modules dtbs -j16</pre>
+<p>menuconfigではDevice Drivers ---> Generic Target Core Mod (TCM) and ConfigFS Infrastructureを選択してMキーを押す。割と最初の方にある。<br />
+<img class="alignnone size-full wp-image-185" src="https://blog.akimasa.jp/wp-content/uploads/2018/01/2018-01-14.png" alt="" width="979" height="512" /><br />
+そして、zImage modules dtbsを（modulesだけでよかったかも？）makeすると、いろいろ生成されるが、次のファイルが重要になる。</p>
+<pre> LD [M] crypto/crct10dif_common.ko
+ LD [M] crypto/crct10dif_generic.ko
+ LD [M] drivers/target/target_core_mod.ko
+ LD [M] lib/crc-t10dif.ko</pre>
+<p>scp使うのも面倒なので、<code>tar c crypto/crct*.ko drivers/target/target_core_mod.ko lib/crc-t10dif.ko | gzip | base64 </code>でbase64を吐き出させて（実際は> /mnt/c/Users/hoge/hoge.txtみたいにデスクトップ上の適当なファイルに吐き出させた。）、<code> base64 -d | tar zxv</code>をRaspberry Piの方で実行して、吐き出されたbase64を貼り付けて、開業して、Ctrl-dで転送した。</p>
+<pre>sudo insmod crypto/* lib/* drivers/target/*</pre>
+<p>これでよいかと思ったら、Generic Target Core Mod (TCM) and ConfigFS InfrastructureをMキー押して有効にしたら、開いたところにさらに選べるのが出てきていて、それが足りていなくてダメなようだった。<br />
+仕方がないので有効にしてビルドしなおしているが、エラーが出た。<br />
+cleanして、modulesだけmakeして何とかなった。<br />
+面倒なので、RasPiで<code>nc -l -p 8000 > ~/mod.tar.gz</code>実行して、<br />
+Bash on Windows</p>
+<pre>mkdir -p mnt/ext4
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=mnt/ext4 modules_install
+cd mnt/ext4
+tar czvf ~/mod.tar.gz ./
+cat ~/mod.tar.gz | nc (RasPi IP Address) 8000
+</pre>
+<p>RasPi</p>
+<pre>cd /
+sudo tar xf ~/mod.tar.gz</pre>
+<p>で、適当に転送して書き換えた。<br />
+うまくいかんので、"depmod -a"したが意味ない。<br />
+cat lib/modules/4.9.76-v7+/modules.builtin見てみたらkernel/lib/crc-t10dif.koとかあったので、<code>curl https://raw.githubusercontent.com/Hexxeh/rpi-firmware/master/modules/4.9.76-v7%2B/modules.builtin | sudo tee modules.builtin</code>とかやってみたが、意味なかった。</p>
+<pre>mkdir -p mnt/fat32/overlays/
+cp arch/arm/boot/zImage mnt/fat32/$KERNEL.img
+cp arch/arm/boot/dts/*.dtb mnt/fat32/
+cp arch/arm/boot/dts/overlays/*.dtb* mnt/fat32/overlays/
+cp arch/arm/boot/dts/overlays/README mnt/fat32/overlays/</pre>
+<p>あとはmnt/fat32/をRasPiの/boot/にコピーして、再起動するだけでよかった。<br />
+そしたら、無事targetcli-fbが入った。</p>
