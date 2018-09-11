@@ -21,8 +21,10 @@ comments: []
 ---
 <h1>やりたいこと</h1>
 <p>Raspberry Pi 3をiSCSIターゲットにしたい。</p>
-<h1>結論</h1>
-<p><a href="https://wiki.archlinux.jp/index.php/ISCSI_%E3%82%BF%E3%83%BC%E3%82%B2%E3%83%83%E3%83%88">iSCSI Enterprise Targetのパッケージiscsitargetは古いので、LIOターゲットを使うべき</a>。らしい。LIOターゲットのパッケージである<span class="plainlinks archwiki-template-pkg">targetcli-fbはRaspbianに入ってはいるが、カーネルを自分でビルドしないと使えなさそう。</span></p>
+<h1>TL;DR</h1>
+<p>https://blog.akimasa.jp/2018/09/11/raspi-iscsi-target/</p>
+<p>https://blog.akimasa.jp/2018/01/15/build-iscsi-kernel/</p>
+<p><del><a href="https://wiki.archlinux.jp/index.php/ISCSI_%E3%82%BF%E3%83%BC%E3%82%B2%E3%83%83%E3%83%88">iSCSI Enterprise Targetのパッケージiscsitargetは古いので、LIOターゲットを使うべき</a>。らしい。LIOターゲットのパッケージである<span class="plainlinks archwiki-template-pkg">targetcli-fbはRaspbianに入ってはいるが、カーネルを自分でビルドしないと使えなさそう。</span></del></p>
 <h1>試行記録</h1>
 <p>Raspbianでiscsitarget-dkmsを入れようとしたら次のようなエラーが出た</p>
 <pre>Setting up linux-kbuild-3.6 (3.6-1~experimental.1+rpi2+b2) ...
