@@ -1,0 +1,37 @@
+---
+layout: post
+status: publish
+published: true
+title: Raspberry Pi上のArch Linux ARMでAURのAsteriskをdistccで素早くビルドする
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 339
+wordpress_url: https://blog.akimasa.jp/?p=339
+date: '2018-09-13 21:33:34 +0900'
+date_gmt: '2018-09-13 12:33:34 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>distccを使って、AURパッケージをビルドしようとしていた。しかし、何故かローカルでビルドされて、どうやってもスレーブにコンパイルが振られなかった。結局のところ、-march=nativeがgccの引数に与えられていたのが原因だった模様だった。<a href="https://wiki.asterisk.org/wiki/display/AST/Building+and+Installing+Asterisk">menuselectでBUILD_NATIVEを無効</a>にすることでビルドすることができた。Ryzen 7 1700を積んでいるPCではHyper-Vを使って8コア割り当てて、仮想マシン上でArch Linuxを走らせて、distccdを動かしている。x86_64 CPUを8コア利用することビルドは10分以内で終わった。configureに2，3分、圧縮にも同じくらいかかっているので、コンパイル自体は5，6分くらいだろうか。Raspberry Pi 3だけでビルドすると20分はかかった。ヒートシンクを取り付けていないので加熱でサーマルスロットリングがかかって遅かったかもしれない。</p>
+<h1>スレーブ側（PC）</h1>
+<p><a href="https://wiki.archlinux.jp/index.php/Distcc#Arch_Linux_ARM">こちらで紹介されているAURパッケージ</a>を入れる。<code>/etc/conf.d/distccd</code>を編集して、ローカルネットワークからジョブを送り込めるようにする。そして、 <code>sudo systemctl start distccd-armv7h</code>を実行して、distccdを走らせておく。</p>
+<h1>マスター側（Raspberry Pi）</h1>
+<p>~/distccd/hosts</p>
+<pre>192.168.0.XX:3635,lzo,cpp</pre>
+<p>trizen -S asteriskを実行した。</p>
+<p>pkgbuildを編集するか聞かれたら編集するを選んで、下記のようにする。</p>
+<pre>build() {
+cd ${pkgname}-${pkgver}
+./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --sbindir=/usr/bin
+make menuselect
+menuselect/menuselect --disable BUILD_NATIVE
+make -j12
+}</pre>
+<p>あとは適当に続行すればよい。</p>
