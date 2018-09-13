@@ -1,0 +1,73 @@
+---
+layout: post
+status: publish
+published: true
+title: Raspberry Pi 3をaarch64で動かす
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 345
+wordpress_url: https://blog.akimasa.jp/?p=345
+date: '2018-09-14 00:41:09 +0900'
+date_gmt: '2018-09-13 15:41:09 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>cpuinfoとopenssl speedの結果から見るに、aesアクセラレーターは無いっぽい？あるいは認識されていないのか。パフォーマンスも案の定32bitと比べて悪い様だ。これは、A53が64bit命令を実行できるようにしているのはbig.LITTLEとして使っている場合、突然パフォーマンスコアから省電力コアに切り替わる際に64bit命令が実行できなくて不正な命令になってしまうのを防ぐためで、高速に実行できるかどうかは考えていないためだったはず。</p>
+<pre>[alarm@alarm ~]$ cat /proc/cpuinfo
+processor       : 0
+BogoMIPS        : 38.40
+Features        : fp asimd evtstrm crc32 cpuid
+CPU implementer : 0x41
+CPU architecture: 8
+CPU variant     : 0x0
+CPU part        : 0xd03
+CPU revision    : 4
+
+processor       : 1
+BogoMIPS        : 38.40
+Features        : fp asimd evtstrm crc32 cpuid
+CPU implementer : 0x41
+CPU architecture: 8
+CPU variant     : 0x0
+CPU part        : 0xd03
+CPU revision    : 4
+
+processor       : 2
+BogoMIPS        : 38.40
+Features        : fp asimd evtstrm crc32 cpuid
+CPU implementer : 0x41
+CPU architecture: 8
+CPU variant     : 0x0
+CPU part        : 0xd03
+CPU revision    : 4
+
+processor       : 3
+BogoMIPS        : 38.40
+Features        : fp asimd evtstrm crc32 cpuid
+CPU implementer : 0x41
+CPU architecture: 8
+CPU variant     : 0x0
+CPU part        : 0xd03
+CPU revision    : 4
+
+[alarm@alarm ~]$ openssl speed aes-128-cbc
+Doing aes-128 cbc for 3s on 16 size blocks: 4187159 aes-128 cbc's in 2.99s
+Doing aes-128 cbc for 3s on 64 size blocks: 1135520 aes-128 cbc's in 2.99s
+Doing aes-128 cbc for 3s on 256 size blocks: 291828 aes-128 cbc's in 2.99s
+Doing aes-128 cbc for 3s on 1024 size blocks: 73494 aes-128 cbc's in 2.98s
+Doing aes-128 cbc for 3s on 8192 size blocks: 9211 aes-128 cbc's in 2.99s
+Doing aes-128 cbc for 3s on 16384 size blocks: 4600 aes-128 cbc's in 2.99s
+OpenSSL 1.1.0i  14 Aug 2018
+built on: reproducible build, date unspecified
+options:bn(64,64) rc4(char) des(int) aes(partial) idea(int) blowfish(ptr)
+compiler: gcc -DDSO_DLFCN -DHAVE_DLFCN_H -DNDEBUG -DOPENSSL_THREADS -DOPENSSL_NO_STATIC_ENGINE -DOPENSSL_PIC -DOPENSSL_BN_ASM_MONT -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DVPAES_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSLDIR="\"/etc/ssl\"" -DENGINESDIR="\"/usr/lib/engines-1.1\""  -Wa,--noexecstack -D_FORTIFY_SOURCE=2 -march=armv8-a -O2 -pipe -fstack-protector-strong -fno-plt -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now
+The 'numbers' are in 1000s of bytes per second processed.
+type             16 bytes     64 bytes    256 bytes   1024 bytes   8192 bytes  16384 bytes
+aes-128 cbc      22406.20k    24305.44k    24985.94k    25254.31k    25236.29k    25206.15k</pre>
