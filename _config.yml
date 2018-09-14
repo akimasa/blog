@@ -23,6 +23,7 @@ baseurl: "/blog" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: akimasa2000
 github_username:  akimasa
+timezone: Asia/Tokyo
 
 # Build settings
 markdown: kramdown
