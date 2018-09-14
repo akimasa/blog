@@ -1,0 +1,65 @@
+---
+layout: post
+status: publish
+published: true
+title: Raspberry Piで新しめのLIRCを使う
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 347
+wordpress_url: https://blog.akimasa.jp/?p=347
+date: '2018-09-14 22:43:45 +0900'
+date_gmt: '2018-09-14 13:43:45 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>Arch Linux ARMとRaspberry Pi 3で使おうとしたが、以下のようなエラーが出て使えなかった。</p>
+<pre>$ irrecord --device=/dev/lirc0 MyRecord
+Using driver devinput on device /dev/lirc0
+Driver `devinput' not found (wrong or missing -U/--plugindir?).
+accent           alsa_usb         asusdh           atilibusb
+atwf83           audio_alsa       awlibusb         bte
+bw6130           commandir        creative         creative_infracd
+default          dfclibusb        dsp              dvico
+ea65             file             ftdi             ftdix
+girs             i2cuser          irlink           irtoy
+livedrive_midi   livedrive_seq    logitech         macmini
+mouseremote      mouseremote_ps2  mp3anywhere      mplay
+mplay2           pcmak            pinsys           pixelview
+samsung          sb0540           silitek          sonyir
+srm7500libusb    tira             tira_raw         udp
+uirt2            uirt2_raw        usb_uirt_raw     usbx
+zotac</pre>
+<p>/etc/lirc/lirc_options.confのdriverをからdevinputからdefaultに変更すると使えるようになる。</p>
+<pre># These are the default options to lircd, if installed as
+# /etc/lirc/lirc_options.conf. See the lircd(8) and lircmd(8)
+# manpages for info on the different options.
+#
+# Some tools including mode2 and irw uses values such as
+# driver, device, plugindir and loglevel as fallback values
+# in not defined elsewhere.
+
+[lircd]
+nodaemon        = False
+driver          = <strong>default</strong>
+device          = auto
+output          = /var/run/lirc/lircd
+pidfile         = /var/run/lirc/lircd.pid
+plugindir       = /usr/lib/lirc/plugins
+permission      = 666
+allow-simulate  = No
+repeat-max      = 600
+#effective-user =
+#listen         = [address:]port
+#connect        = host[:port]
+#loglevel       = 6
+#release        = true
+#release_suffix = _EVUP
+#logfile        = ...
+#driver-options = ...</pre>
