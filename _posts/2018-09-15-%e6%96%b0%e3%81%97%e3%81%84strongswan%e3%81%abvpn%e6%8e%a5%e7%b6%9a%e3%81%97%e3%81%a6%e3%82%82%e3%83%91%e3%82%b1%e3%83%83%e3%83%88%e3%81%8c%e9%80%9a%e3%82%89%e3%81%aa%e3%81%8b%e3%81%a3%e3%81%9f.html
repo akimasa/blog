@@ -1,0 +1,46 @@
+---
+layout: post
+status: publish
+published: true
+title: 新しいstrongswanにVPN接続してもパケットが通らなかった
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 349
+wordpress_url: https://blog.akimasa.jp/?p=349
+date: '2018-09-15 15:14:58 +0900'
+date_gmt: '2018-09-15 06:14:58 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p>自宅のネットワークにアクセスできるようにIPSec/L2TPのVPNサーバーを使っていた。strongswanとxl2tpdを利用している。</p>
+<p>Debian JessieだったかStretchで使っていた設定ファイルをArch Linux ARMにそのまま移した。最新版では使えなくなった設定があるのでsudo journalctl -fで出てくるエラーをつぶして、サービスが動くようにした。</p>
+<p>しかし、パケットが通らない。サーバーからpingを打っても、Destination Host Unreachableだった。</p>
+<p>LANのip address rangeが192.168.0.0/24で、xl2tpdのip range =&nbsp; 192.168.0.200-192.168.0.220 から 192.168.2.200-192.168.2.220 sudo iptables に変えた。（local ipも合わせる）そして、<code>sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE</code>　でNAT通すようにしたら、LANにアクセスできるようになった。</p>
+<p>しかし、昔の設定が使えないのは謎なので、さらに調べていたら、どうもルーティングテーブルがおかしい。ip rangeを192.168.0.0/24にしている状態で、VPN接続を行う。そして、ip route get 192.168.0.200を実行すると</p>
+<pre>$ ip route get 192.168.0.200
+192.168.0.200 dev eth0 table 220 src 192.168.0.25 uid 1001
+cache</pre>
+<p>このようになる。</p>
+<p>なんかよくわからないtable 220にppp0ではなくeth0経由で通信しようするように設定されている。とりあえず、ip route flush table 220（違ったかも）でルーティングテーブルのこのエントリを消すことで正しくVPNで接続したiPhoneにpingが通るようになった。</p>
+<p>https://wiki.strongswan.org/issues/248</p>
+<blockquote><p>If I let charon (and not updown.sh) install the routes (install_routes=yes), this is what happens (10.32.32.200 is the 'other side'):</p></blockquote>
+<p>とあるので、install_routesというキーワードをヒントに検索したら、次のような設定があることが判明した。</p>
+<p>https://wiki.strongswan.org/projects/strongswan/wiki/StrongswanConf</p>
+<table>
+<tbody>
+<tr>
+<td>charon.install_routes</td>
+<td>yes</td>
+<td>Install routes into a separate routing table for established IPsec tunnels. If disabled a more efficient lookup for source and next-hop addresses is used since <a class="version" href="https://wiki.strongswan.org/versions/64">5.5.2</a>.</td>
+</tr>
+</tbody>
+</table>
+<p>デフォルトではyesになっているのをnoに変更したら直った。設定ファイルは /etc/strongswan.d/charon.confにあった。</p>
+<p>これで、なんとか使えるようになった。</p>
