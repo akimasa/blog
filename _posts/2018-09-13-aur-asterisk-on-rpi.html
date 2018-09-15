@@ -35,3 +35,8 @@ menuselect/menuselect --disable BUILD_NATIVE
 make -j12
 }</pre>
 <p>あとは適当に続行すればよい。</p>
+<p>&nbsp;</p>
+<p>追記:日本語音声を入れ忘れていた。</p>
+<pre>make menuselect
+menuselect/menuselect --enable CORE-SOUNDS-JA-WAV --enable CORE-SOUNDS-JA-ULAW
+make -j4</pre>
