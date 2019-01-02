@@ -1,0 +1,114 @@
+---
+layout: post
+status: publish
+published: true
+title: AE-TYBLE16でnRF5 SDKのサンプルを動かす
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 361
+wordpress_url: https://blog.akimasa.jp/?p=361
+date: '2019-01-02 21:12:15 +0900'
+date_gmt: '2019-01-02 12:12:15 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><!-- wp:heading --></p>
+<h2>バイナリを生成する</h2>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>12.3.0nRF5 SDKをダウンロードした。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>pca10028/s130/config/sdk_config.hで CLOCK_CONFIG_XTAL_FREQ 255->0, CLOCK_CONFIG_LF_SRC 1  -> 0と書き換える（変えなくても動いていたが念のため）<br></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>各サンプルのmain.cのble_stack_init( )の冒頭にあるclock_lf_cfgを次のように書き換える。（これは書き換えないと全く動かなかった。）</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:shortcode --><br />
+    nrf_clock_lf_cfg_t clock_lf_cfg;<br />
+    clock_lf_cfg.rc_ctiv = 16;<br />
+    clock_lf_cfg.rc_temp_ctiv = 2;<br />
+    clock_lf_cfg.source = NRF_CLOCK_LF_SRC_RC;<br />
+    clock_lf_cfg.xtal_accuracy = NRF_CLOCK_LF_XTAL_ACCURACY_250_PPM;<br />
+<!-- /wp:shortcode --></p>
+<p><!-- wp:paragraph --></p>
+<p>$(SDKROOT)/components/toolchain/{system_nrf51.c,system_nrf51422.c}の2つのファイルの冒頭 __SYSTEM_CLOCK      (16000000UL)  を (32000000UL)  に書き換える。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>これでコンパイルしてできたバイナリがAE-TYBLE16でで動くはず。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading --></p>
+<h2>書き込む</h2>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>書き込みはRaspberry Pi Zero W上で走らせたopenocdで行った。openocd.cfgは下記の通りだった。set WORKAREASIZE 0がないとエラーが出て書き込めなかった。swclk = 25, swdio = 24になるので適当に接続する。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:shortcode --><br />
+source [find interface/raspberrypi-native.cfg]<br />
+transport select swd<br />
+bcm2835gpio_swd_nums 25 24<br />
+bcm2835gpio_trst_num 7<br />
+bcm2835gpio_srst_num 18<br />
+set WORKAREASIZE 0<br />
+source [find target/nrf51.cfg]<br />
+<!-- /wp:shortcode --></p>
+<p><!-- wp:paragraph --></p>
+<p>s130-201.hexは$(SDKROOT)\components\softdevice\s130\hex\s130_nrf51_2.0.1_softdevice.hexで、blinky.hexが先ほどコンパイルして生成されたhexになる。適当な方法でRasPiに転送する。今回はpscpを使った。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p> ケーブルが接続されていることを確認して、RasPiのlocalhost:4444に telnetで 接続した。下記のコマンドを入力する。 </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:shortcode --><br />
+reset halt<br />
+halt; nrf51 mass_erase; flash write_image s130-201.hex 0; flash write_image blinky.hex<br />
+mww 0x4001e504 1 ; mww 0x10001000 0x0001C000; mww 0x10001008 0xffffff00; mww 0x4001e504 0;<br />
+reset run<br />
+<!-- /wp:shortcode --></p>
+<p><!-- wp:paragraph --></p>
+<p>ちなみに、openocdを実行するとシェルにはこんな出力が出る。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:shortcode --><br />
+pi@raspberrypizero:~ $ sudo openocd<br />
+Open On-Chip Debugger 0.10.0+dev-00232-g6f5e9941 (2018-01-10-08:50)<br />
+Licensed under GNU GPL v2<br />
+For bug reports, read<br />
+        http://openocd.org/doc/doxygen/bugs.html<br />
+BCM2835 GPIO config: tck = 11, tms = 25, tdi = 10, tdo = 9<br />
+BCM2835 GPIO nums: swclk = 25, swdio = 24<br />
+BCM2835 GPIO config: trst = 7<br />
+BCM2835 GPIO config: srst = 18<br />
+cortex_m reset_config sysresetreq<br />
+adapter speed: 1000 kHz<br />
+Info : BCM2835 GPIO JTAG/SWD bitbang driver<br />
+Info : JTAG and SWD modes enabled<br />
+Info : clock speed 1006 kHz<br />
+Info : SWD DPIDR 0x0bb11477<br />
+Info : nrf51.cpu: hardware has 4 breakpoints, 2 watchpoints<br />
+Info : accepting 'telnet' connection on tcp/4444</p>
+<p><!-- /wp:shortcode --></p>
+<p><!-- wp:paragraph --></p>
+<p>port 4444にtelnetした方は次のような感じになる<br></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:shortcode --><br />
+Open On-Chip Debugger<br />
+> reset halt                                                                    target halted due to debug-request, current mode: Thread<br />
+xPSR: 0xc1000000 pc: 0x000006d0 msp: 0x000007c0<br />
+> halt; nrf51 mass_erase; flash write_image s130-201.hex 0; flash write_image blinky.hex<br />
+nRF51822-CFAC(build code: A0) 256kB Flash<br />
+Padding image section 0 with 2112 bytes<br />
+not enough working area available(requested 32)<br />
+no working area available, falling back to slow memory writes<br />
+wrote 110560 bytes from file s130-201.hex in 7.748491s (13.934 KiB/s)<br />
+not enough working area available(requested 32)<br />
+no working area available, falling back to slow memory writes<br />
+wrote 48232 bytes from file blinky.hex in 3.481749s (13.528 KiB/s)<br />
+> mww 0x4001e504 1 ; mww 0x10001000 0x0001C000; mww 0x10001008 0xffffff00; mww 0x4001e504 0;<br />
+> reset run</p>
+<p><!-- /wp:shortcode --></p>
