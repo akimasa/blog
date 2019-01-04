@@ -1,0 +1,36 @@
+---
+layout: post
+status: publish
+published: true
+title: net-radio-archiveが動かなくなっていた
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 364
+wordpress_url: https://blog.akimasa.jp/?p=364
+date: '2019-01-04 17:28:29 +0900'
+date_gmt: '2019-01-04 08:28:29 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><!-- wp:paragraph --></p>
+<p>よくわからずにrootでbundle installしていた付けが回ってきた（今更</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>あと、更新スクリプトでbundle installしていないっぽいのもまずかったかも</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>ともかく、正月から録音が完全に止まっていたという大惨事になっていた。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:preformatted --></p>
+<pre class="wp-block-preformatted">$ bundle<br> Fetching gem metadata from https://rubygems.org/&hellip;&hellip;&hellip;.<br> Using rake 12.3.0<br> Using concurrent-ruby 1.0.5<br> Using i18n 0.9.1<br> Using minitest 5.10.3<br> Using thread_safe 0.3.6<br> Using tzinfo 1.2.4<br> Using activesupport 4.2.10<br> Using builder 3.2.3<br> Using erubis 2.7.0<br> Using mini_portile2 2.3.0<br> Using nokogiri 1.8.1<br> Using rails-deprecated_sanitizer 1.0.3<br> Using rails-dom-testing 1.0.8<br> Using crass 1.0.3<br> Using loofah 2.1.1<br> Using rails-html-sanitizer 1.0.3<br> Using actionview 4.2.10<br> Using rack 1.6.8<br> Using rack-test 0.6.3<br> Using actionpack 4.2.10<br> Using globalid 0.4.1<br> Using activejob 4.2.10<br> Using mini_mime 1.0.0<br> Using mail 2.7.0<br> Using actionmailer 4.2.10<br> Using activemodel 4.2.10<br> Using arel 6.0.4<br> Using activerecord 4.2.10<br> Using activerecord-import 0.21.0<br> Using bundler 1.16.1<br> Using chronic 0.10.2<br> Using coderay 1.1.2<br> Using coffee-script-source 1.12.2<br> Using execjs 2.7.0<br> Using coffee-script 2.4.1<br> Using thor 0.20.0<br> Using railties 4.2.10<br> Using coffee-rails 4.0.1<br> Using unf_ext 0.0.7.4<br> Using unf 0.1.4<br> Using domain_name 0.5.20170404<br> Using hike 1.2.3<br> Using http-cookie 1.0.3<br> Using multi_xml 0.6.0<br> Using httparty 0.15.6<br> Using multi_json 1.12.2<br> Using jbuilder 2.7.0<br> Using jquery-rails 4.3.1<br> Using json 1.8.6<br> Fetching m3u8 0.8.2<br> Bundler::GemspecError: Could not read gem at<br> /var/lib/gems/2.1.0/cache/m3u8-0.8.2.gem. It may be corrupted.<br> An error occurred while installing m3u8 (0.8.2), and Bundler cannot<br> continue.<br> Make sure that <code>gem install m3u8 -v '0.8.2'</code> succeeds before bundling.<br> In Gemfile:<br>   m3u8</pre>
+<p><!-- /wp:preformatted --></p>
+<p><!-- wp:paragraph --></p>
+<p>$ bundle --path vendor/bundle で解決した（<a href="https://qiita.com/osamtimizer/items/3a241f365c85356394a8">参考</a>）</p>
+<p><!-- /wp:paragraph --></p>
