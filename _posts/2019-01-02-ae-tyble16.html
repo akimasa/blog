@@ -32,7 +32,7 @@ comments: []
 <p>各サンプルのmain.cのble_stack_init( )の冒頭にあるclock_lf_cfgを次のように書き換える。（これは書き換えないと全く動かなかった。）</p>
 <p><!-- /wp:paragraph --></p>
 <p><!-- wp:shortcode --><br />
-    nrf_clock_lf_cfg_t clock_lf_cfg;<br />
+nrf_clock_lf_cfg_t clock_lf_cfg;<br />
     clock_lf_cfg.rc_ctiv = 16;<br />
     clock_lf_cfg.rc_temp_ctiv = 2;<br />
     clock_lf_cfg.source = NRF_CLOCK_LF_SRC_RC;<br />
@@ -91,8 +91,8 @@ Info : JTAG and SWD modes enabled<br />
 Info : clock speed 1006 kHz<br />
 Info : SWD DPIDR 0x0bb11477<br />
 Info : nrf51.cpu: hardware has 4 breakpoints, 2 watchpoints<br />
-Info : accepting 'telnet' connection on tcp/4444</p>
-<p><!-- /wp:shortcode --></p>
+Info : accepting 'telnet' connection on tcp/4444<br />
+<!-- /wp:shortcode --></p>
 <p><!-- wp:paragraph --></p>
 <p>port 4444にtelnetした方は次のような感じになる<br></p>
 <p><!-- /wp:paragraph --></p>
@@ -110,5 +110,11 @@ not enough working area available(requested 32)<br />
 no working area available, falling back to slow memory writes<br />
 wrote 48232 bytes from file blinky.hex in 3.481749s (13.528 KiB/s)<br />
 > mww 0x4001e504 1 ; mww 0x10001000 0x0001C000; mww 0x10001008 0xffffff00; mww 0x4001e504 0;<br />
-> reset run</p>
-<p><!-- /wp:shortcode --></p>
+> reset run<br />
+<!-- /wp:shortcode --></p>
+<p><!-- wp:paragraph --></p>
+<p>1/7追記:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>mww 0x10001000 0x0001C000;は間違っていた。mww 0x10001000 0x0001b000;だった（ pca10028/s130/ble_app_template_gcc_nrf51.ld ）とかを見るとFLASH (rx) : ORIGIN = 0x1b000, LENGTH = 0x25000とか書いてあるので、ORIGINを参考にして設定する。適切に設定すれば2回目以降はmass_eraseが不要になる。そうするとsoftdeviceを書き込みしなおさなくて済むので時間が節約できる。sudo openocd -f openocd.cfg -c 'init; reset halt; flash write_image erase blinky.hex; reset run; exit' でやっている。さらに言えば、openocd.cfgの一番最後にadapter_khz 4000を付けると速くなった。</p>
+<p><!-- /wp:paragraph --></p>
