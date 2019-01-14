@@ -1,0 +1,54 @@
+---
+layout: post
+status: publish
+published: true
+title: openocdでSEGGER RTTを使う
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 381
+wordpress_url: https://blog.akimasa.jp/?p=381
+date: '2019-01-14 12:51:34 +0900'
+date_gmt: '2019-01-14 03:51:34 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><!-- wp:paragraph --></p>
+<p>使えないかと思っていたら<a href="http://openocd.zylin.com/#/c/4055/8">パッチ</a>が投稿されていた。まだマージされていないが、使うことができる。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:preformatted --></p>
+<pre class="wp-block-preformatted">$ git clone git://repo.or.cz/openocd.git<br>$ git fetch http://openocd.zylin.com/openocd refs/changes/55/4055/8 &amp;&amp; git checkout FETCH_HEAD<br>$ cd openocd/<br>$ ./bootstrap<br>$ ./configure --enable-sysfsgpio --enable-bcm2835gpio --prefix=$HOME/openocd-rtt<br>$ make -j4<br>$ make install</pre>
+<p><!-- /wp:preformatted --></p>
+<p><!-- wp:paragraph --></p>
+<p>上記のコマンドを実行すればopenocdのバイナリができる。configureの際にprefixオプションを付けて、最初からに入っているopenocdと被らないようにしたが、必要がなければprefixは消してもらいたい。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>さて、バイナリがインストールされたら、普段通りにopenocdを実行する。localhost:4444のコンソールから操作するが、以下のようなコマンドを実行する。0x2000321cは環境によって異なるので変える必要がある。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:preformatted --></p>
+<pre class="wp-block-preformatted">> rtt setup 0x2000321c 512 "SEGGER RTT" <br>> rtt start <br>> rtt channels<br>> rttserver start 5555 0<br></pre>
+<p><!-- /wp:preformatted --></p>
+<p><!-- wp:paragraph --></p>
+<p>そうすると、localhost:5555にtelnetで接続できるようなる。あとは出力を眺めるだけ。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>さて、0x2000321cは環境によって異なると書いたが、見つけ方は以下の通り。nRF5 SDKでコンパイラはarmgccを使った。_build\nrf51422_xxac.mapを開く。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>_build\nrf51422_xxac.mapを開く。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:preformatted --></p>
+<pre class="wp-block-preformatted">COMMON         0x2000321c       0x78 _build/nrf51422_xxac_SEGGER_RTT.c.o<br>                 0x2000321c                _SEGGER_RTT<br></pre>
+<p><!-- /wp:preformatted --></p>
+<p><!-- wp:paragraph --></p>
+<p>すると、上記のような部分が見つかる。ここにある0x2000321cが入力するアドレスになる。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>これでUARTつないでいなくても出力を眺めることができるので非常に便利なる。デバッグがはかどりそうだ。数千円かけてJ-Linkを買わないといけないのか&hellip;と思っていたが、手元にあるRasPi Zero Wでも同じことができた。</p>
+<p><!-- /wp:paragraph --></p>
