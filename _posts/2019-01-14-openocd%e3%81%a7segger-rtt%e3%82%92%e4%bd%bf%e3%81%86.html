@@ -37,8 +37,17 @@ comments: []
 <p><!-- wp:paragraph --></p>
 <p>そうすると、localhost:5555にtelnetで接続できるようなる。あとは出力を眺めるだけ。</p>
 <p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading --></p>
+<h2>コントロールブロックの探し方</h2>
+<p><!-- /wp:heading --></p>
 <p><!-- wp:paragraph --></p>
-<p>さて、0x2000321cは環境によって異なると書いたが、見つけ方は以下の通り。nRF5 SDKでコンパイラはarmgccを使った。_build\nrf51422_xxac.mapを開く。</p>
+<p>さて、0x2000321cは環境によって異なると書いたが、見つけ方はいくつかある。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading --></p>
+<h2>.mapを見る</h2>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>nRF5 SDKでコンパイラはarmgccを使った。_build\nrf51422_xxac.mapを開く。</p>
 <p><!-- /wp:paragraph --></p>
 <p><!-- wp:paragraph --></p>
 <p>_build\nrf51422_xxac.mapを開く。</p>
@@ -48,6 +57,15 @@ comments: []
 <p><!-- /wp:preformatted --></p>
 <p><!-- wp:paragraph --></p>
 <p>すると、上記のような部分が見つかる。ここにある0x2000321cが入力するアドレスになる。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading --></p>
+<h2>GDBを使う(推奨)</h2>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:preformatted --></p>
+<pre class="wp-block-preformatted">eval "monitor rtt setup %p 512 SEGGER\ RTT", &amp;_SEGGER_RTT<br>monitor rtt start<br>monitor rtt channels<br>monitor rttserver start 5555 0</pre>
+<p><!-- /wp:preformatted --></p>
+<p><!-- wp:paragraph --></p>
+<p>上記のコマンドをGDBで実行してもRTTのコントロールブロックのアドレスを与えることができる。<strong>こちらの方が楽だ。</strong></p>
 <p><!-- /wp:paragraph --></p>
 <p><!-- wp:paragraph --></p>
 <p>これでUARTつないでいなくても出力を眺めることができるので非常に便利なる。デバッグがはかどりそうだ。数千円かけてJ-Linkを買わないといけないのか&hellip;と思っていたが、手元にあるRasPi Zero Wでも同じことができた。</p>
