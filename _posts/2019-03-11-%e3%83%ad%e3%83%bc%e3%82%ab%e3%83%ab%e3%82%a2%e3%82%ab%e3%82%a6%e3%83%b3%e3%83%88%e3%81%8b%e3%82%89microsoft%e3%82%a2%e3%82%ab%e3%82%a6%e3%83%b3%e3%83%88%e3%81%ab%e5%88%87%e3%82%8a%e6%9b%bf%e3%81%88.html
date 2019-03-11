@@ -1,0 +1,33 @@
+---
+layout: post
+status: publish
+published: true
+title: ローカルアカウントからMicrosoftアカウントに切り替え
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 406
+wordpress_url: https://blog.akimasa.jp/?p=406
+date: '2019-03-11 17:12:52 +0900'
+date_gmt: '2019-03-11 08:12:52 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><!-- wp:paragraph --></p>
+<p><a href="https://answers.microsoft.com/ja-jp/windows/forum/windows_8-security/%e3%83%ad%e3%83%bc%e3%82%ab%e3%83%ab%e3%82%a2/c12dcd31-a550-46ec-afd4-d9771558c7b9?messageId=5f1641f2-ed27-493e-be4b-3fd19b606a6e">https://answers.microsoft.com/ja-jp/windows/forum/windows_8-security/%e3%83%ad%e3%83%bc%e3%82%ab%e3%83%ab%e3%82%a2/c12dcd31-a550-46ec-afd4-d9771558c7b9?messageId=5f1641f2-ed27-493e-be4b-3fd19b606a6e</a></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><a href="https://answers.microsoft.com/ja-jp/windows/forum/all/microsoft%E3%82%A2%E3%82%AB%E3%82%A6%E3%83%B3/3d531e7f-42a8-47ce-ad3c-d71d52b96bc4">https://answers.microsoft.com/ja-jp/windows/forum/all/microsoft%E3%82%A2%E3%82%AB%E3%82%A6%E3%83%B3/3d531e7f-42a8-47ce-ad3c-d71d52b96bc4</a></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><a href="https://answers.microsoft.com/en-us/windows/forum/windows_10-security/another-user-on-this-device-uses-this-microsoft/3920bd03-bc04-40e3-b51e-9ceabe7a5842?page=2">https://answers.microsoft.com/en-us/windows/forum/windows_10-security/another-user-on-this-device-uses-this-microsoft/3920bd03-bc04-40e3-b51e-9ceabe7a5842?page=2</a></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>切り替えようとしたが、すぐにはできなかった。日本語での情報に乏しいので英語で検索したら、それっぽいのが見つかった。regeditで<br>HKEY_USERS\S-1-5-18\Software\Microsoft\IdentityCRL\StoredIdentities\にあるメールアドレスを消すと良いらしい。しかし、これをやっても駄目だった。netplwizを開いて、詳細の詳細を出して、ユーザーの一覧を表示させたところ、Microsoftアカウントでセットアップするとデフォルトで設定されるユーザー名のユーザーが存在していたので消した。そしたら、切り替えができるようになった</p>
+<p><!-- /wp:paragraph --></p>
