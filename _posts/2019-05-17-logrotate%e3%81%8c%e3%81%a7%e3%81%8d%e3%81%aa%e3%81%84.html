@@ -1,0 +1,93 @@
+---
+layout: post
+status: publish
+published: true
+title: logrotateができない
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 413
+wordpress_url: https://blog.akimasa.jp/?p=413
+date: '2019-05-17 00:58:58 +0900'
+date_gmt: '2019-05-16 15:58:58 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><!-- wp:paragraph --></p>
+<p>Arch Linuxで次のようなエラーが出てうまくいかなかった</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:code --></p>
+<pre class="wp-block-code"><code>error: failed to rename /usr/local/var/log/mirakurun.stderr.log to /usr/local/var/log/mirakurun.stderr.log-20190517: Read-only file system</code></pre>
+<p><!-- /wp:code --></p>
+<p><!-- wp:paragraph --></p>
+<p>しかし、普通にsudo logrotate /etc/logrotate.d/mirakurunとか実行するとうまくいく。ちなみに /etc/logrotate.d/mirakurun は次のような感じ</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:code --></p>
+<pre class="wp-block-code"><code>/usr/local/var/log/mirakurun.std*.log
+{
+  su root root
+  weekly
+  compress
+  rotate 52
+  missingok
+  notifempty
+  compresscmd /usr/bin/xz
+  uncompresscmd /usr/bin/unxz
+  compressext .xz
+  dateext
+  postrotate
+    pm2 reloadLogs
+  endscript
+}
+</code></pre>
+<p><!-- /wp:code --></p>
+<p><!-- wp:paragraph --></p>
+<p>何気なくlogrotate.serviceを眺めてみたら原因っぽいことが分かった</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:code --></p>
+<pre class="wp-block-code"><code>$ cat /usr/lib/systemd/system/logrotate.service
+[Unit]
+Description=Rotate log files
+Documentation=man:logrotate(8) man:logrotate.conf(5)
+RequiresMountsFor=/var/log
+ConditionACPower=true
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/logrotate /etc/logrotate.conf
+
+# performance options
+Nice=19
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+
+# hardening options
+#  details: https://www.freedesktop.org/software/systemd/man/systemd.exec.html
+#  no ProtectHome for userdir logs
+#  no PrivateNetwork for mail deliviery
+#  no ProtectKernelTunables for working SELinux with systemd older than 235
+MemoryDenyWriteExecute=true
+PrivateDevices=true
+PrivateTmp=true
+ProtectControlGroups=true
+ProtectKernelModules=true
+ProtectSystem=full
+RestrictRealtime=true
+</code></pre>
+<p><!-- /wp:code --></p>
+<p><!-- wp:paragraph --></p>
+<p>ProtectSystemが怪しい。<a href="https://www.freedesktop.org/software/systemd/man/systemd.exec.html">説明</a>を見てみると、次のようなことが書いてあった。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:quote --></p>
+<blockquote class="wp-block-quote"><p> If true, mounts the <code>/usr</code> and <code>/boot</code>         directories read-only for processes invoked by this unit. </p>
+<p><cite><a href="https://www.freedesktop.org/software/systemd/man/systemd.exec.htm">https://www.freedesktop.org/software/systemd/man/systemd.exec.htm</a></cite></p></blockquote>
+<p><!-- /wp:quote --></p>
+<p><!-- wp:paragraph --></p>
+<p>どうやら/usrがread-onlyになるようだ。ReadWritePaths=/usr/local/var/logでも指定すればいいのだろうか。後ほど試すことにする。 <br></p>
+<p><!-- /wp:paragraph --></p>
