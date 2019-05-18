@@ -89,5 +89,8 @@ RestrictRealtime=true
 <p><cite><a href="https://www.freedesktop.org/software/systemd/man/systemd.exec.htm">https://www.freedesktop.org/software/systemd/man/systemd.exec.htm</a></cite></p></blockquote>
 <p><!-- /wp:quote --></p>
 <p><!-- wp:paragraph --></p>
-<p>どうやら/usrがread-onlyになるようだ。ReadWritePaths=/usr/local/var/logでも指定すればいいのだろうか。後ほど試すことにする。 <br></p>
+<p>どうやら/usrがread-onlyになるようだ。ReadWritePaths=/usr/local/var/logでも指定すればいいのだろうか。後ほど試すことにする。 </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>追記：試したがpm2 reloadLogsがコアダンプを起こして終了していた。MemoryDenyWriteExecuteが怪しい気がするが、あきらめる。<br></p>
 <p><!-- /wp:paragraph --></p>
