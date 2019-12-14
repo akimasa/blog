@@ -1,0 +1,37 @@
+---
+layout: post
+status: publish
+published: true
+title: GCPでstretchをbusterに上げたらSSH鍵が転送されなくなった
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 419
+wordpress_url: https://blog.akimasa.jp/?p=419
+date: '2019-12-12 23:22:50 +0900'
+date_gmt: '2019-12-12 14:22:50 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><!-- wp:paragraph --></p>
+<p>久しぶりに投稿する。何とかフルタイムの仕事が見つかって、忙しい日々を送っている。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>さて、Debian busterが出て結構経っているので、上げた。そして、久しぶりにCloud Consoleから入ろうとした。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:quote --></p>
+<blockquote class="wp-block-quote"><p>プロジェクト メタデータへの鍵転送に異常に長い時間がかかっています。インスタンス メタデータに転送する方が所要時間は短くなる可能性がありますが、鍵が転送されるのはこの VM のみになります。この仮想マシンから他の仮想マシンに SSH 接続する場合は、鍵を適切に転送する必要があります。</p>
+</blockquote>
+<p><!-- /wp:quote --></p>
+<p><!-- wp:paragraph --></p>
+<p>上記のようなエラーが出ていくら待っても入れなかった。シリアルコンソールを利用するという手段もあるが、なんとかして鍵を適切に転送するようにしたい。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>結局、<a href="https://cloud.google.com/compute/docs/images/install-guest-environment?hl=ja#in_place">ゲスト環境パッケージのインストール</a>を行ったら直った。google-compute-engine-osloginとgoogle-compute-engineが入っていなかったようだ。</p>
+<p><!-- /wp:paragraph --></p>

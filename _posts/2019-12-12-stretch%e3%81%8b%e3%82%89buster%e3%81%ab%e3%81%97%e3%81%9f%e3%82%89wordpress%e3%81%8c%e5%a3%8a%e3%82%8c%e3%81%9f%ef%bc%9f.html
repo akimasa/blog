@@ -1,0 +1,34 @@
+---
+layout: post
+status: publish
+published: true
+title: stretchからbusterにしたらWordPressが壊れた？
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 421
+wordpress_url: https://blog.akimasa.jp/?p=421
+date: '2019-12-12 23:26:35 +0900'
+date_gmt: '2019-12-12 14:26:35 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><!-- wp:paragraph --></p>
+<p>Google Analytics的な所から500でblogが見ることができないエラーの警告が出ていたので対応した。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:quote --></p>
+<blockquote class="wp-block-quote"><p>お使いのサーバーの PHP では WordPress に必要な MySQL 拡張を利用できないようです。</p>
+</blockquote>
+<p><!-- /wp:quote --></p>
+<p><!-- wp:paragraph --></p>
+<p>上記のようなエラーメッセージが表示されていた。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>php-mysqlをインストールしたが解決されず。結局、apt autoremove php7.0で古いPHPを消してapt install php7.3で最新のPHPを入れることで解決した。どうもphp7.3用のphp-mysqlモジュールが入っているのにphp7.0で動いていたので読み込まれなかったようだ。</p>
+<p><!-- /wp:paragraph --></p>
