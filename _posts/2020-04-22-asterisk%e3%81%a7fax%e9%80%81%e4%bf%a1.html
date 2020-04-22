@@ -1,0 +1,45 @@
+---
+layout: post
+status: publish
+published: true
+title: AsteriskでFAX送信
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 425
+wordpress_url: https://blog.akimasa.jp/?p=425
+date: '2020-04-22 21:19:33 +0900'
+date_gmt: '2020-04-22 12:19:33 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><!-- wp:paragraph --></p>
+<p><a href="https://www.northwind.mydns.jp/samples/blog/?p=1732">https://www.northwind.mydns.jp/samples/blog/?p=1732</a></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>上記サイトに従ってFAX送信を試みた。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>次のようなエラーが/var/log/asterisk/messagesに流れてきて送信できなかった。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:code --></p>
+<pre class="wp-block-code"><code>&#91;Apr 22 20:46:58] ERROR&#91;508]&#91;C-00000006] res_fax.c: access failure.  Verify '/tmp/foo2.tif' exists and check permissions.</code></pre>
+<p><!-- /wp:code --></p>
+<p><!-- wp:paragraph --></p>
+<p>これは原因がよくわかっていないが、/var/spool/asterisk/tmp/にtiffファイルを置くことで解決した。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>進んだのは良いが、今度は次のような警告が出て、結局FAXが送れなかった。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:code --></p>
+<pre class="wp-block-code"><code>&#91;Apr 22 21:06:02] WARNING&#91;639]&#91;C-0000000b]: res_fax_spandsp.c:438 spandsp_log: WARNING T.30 Cannot open source TIFF file '/var/spool/asterisk/tmp/foo.tif'</code></pre>
+<p><!-- /wp:code --></p>
+<p><!-- wp:paragraph --></p>
+<p>これは、<a href="http://forums.asterisk.org/viewtopic.php?f=1&amp;t=24084">こちらのサイト</a>に書かれている情報に従って <br><code>convert -compress fax -monochrome -units pixelsperinch -resample 204x98 filea.pdf filea4.tif </code>を実行して変換したら進んだ。</p>
+<p><!-- /wp:paragraph --></p>
