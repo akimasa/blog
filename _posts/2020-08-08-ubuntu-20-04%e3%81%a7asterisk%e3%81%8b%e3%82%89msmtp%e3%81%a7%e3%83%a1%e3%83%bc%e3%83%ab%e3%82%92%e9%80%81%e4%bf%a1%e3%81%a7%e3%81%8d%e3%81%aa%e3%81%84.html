@@ -1,0 +1,45 @@
+---
+layout: post
+status: publish
+published: true
+title: Ubuntu 20.04でAsteriskからmsmtpでメールを送信できない
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 428
+wordpress_url: https://blog.akimasa.jp/?p=428
+date: '2020-08-08 19:28:50 +0900'
+date_gmt: '2020-08-08 10:28:50 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><!-- wp:paragraph --></p>
+<p>echo test | sudo -u asterisk strace sendmail hogehoge@hogehoge.com</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>上記のようなコマンドを実行したら、次のような結果になった。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>newfstatat(AT_FDCWD, "/var/lib/asterisk/.msmtprc", {st_mode=S_IFREG|0600, st_size=170, &hellip;}, 0) = 0<br> geteuid()                               = 112<br> openat(AT_FDCWD, "/var/lib/asterisk/.msmtprc", O_RDONLY) = -1 EACCES (Permission denied)</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>しかし、パーミッションは600で何も問題がない。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>SELinuxは入っていないっぽいし、何故だと思いつつ、調べてみたら、UbuntuにはAppArmorというものが入っているらしい。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>/etc/apparmor.d/usr.bin.msmtpを開いてみたら、owner @{HOME}/.msmtp*, rという行があった。これを参考にして owner /owner/var/lib/asterisk/.msmtp*, r を追加した。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>追加されたら、sudo apparmor_parser -r /etc/apparmor.d/usr.bin.msmtpを実行して反映させる。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>これで、Asteriskだけ別のアカウントを使ってメールが送信できるようになった。</p>
+<p><!-- /wp:paragraph --></p>
