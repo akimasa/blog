@@ -1,0 +1,60 @@
+---
+layout: post
+status: publish
+published: true
+title: WSUSが0x8024002eエラーでWindows Updateができない
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 432
+wordpress_url: https://blog.akimasa.jp/?p=432
+date: '2020-09-05 09:12:34 +0900'
+date_gmt: '2020-09-05 00:12:34 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><!-- wp:paragraph --></p>
+<p>WSUS配下にPCを入れたのは良いがWindows Updateが行われなくて丸1日がつぶれてしまった。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>結論から言うと、DisableDualScanキーをレジストリに追加すると直った。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>0x8024002E <code>WU_E_WU_DISABLED</code> 非管理サーバーへのアクセスは許可されていません。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><a href="https://docs.microsoft.com/ja-jp/windows/deployment/update/windows-update-error-reference">エラーリファレンス</a>によれば上記のような説明だったが、いまいち意味がよくわからなかった。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>エラーが出ているPCで次のコマンドを実行すると、下記のような結果が出てくる。(PowerShellで実行する）</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>(New-Object -ComObject "Microsoft.Update.ServiceManager").Services |select Name, IsManaged,IsDefaultAUService</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:code --></p>
+<pre class="wp-block-code"><code>Name                      IsManaged IsDefaultAUService
+----                      --------- ------------------
+DCat Flighting Prod           False              False
+Windows Store (DCat Prod)     False              False
+Windows Server Update Service      True              False
+Windows Update                False               True</code></pre>
+<p><!-- /wp:code --></p>
+<p><!-- wp:paragraph --></p>
+<p>何かがおかしい。別の正常にアップデートが行えるPCではWindows Server Update Service      True              Trueだった。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:core-embed/reddit {"url":"https://www.reddit.com/r/sysadmin/comments/c7shdx/win10_machines_cant_talk_to_wsus_after_may_update/","type":"rich","providerNameSlug":"reddit","className":""} --></p>
+<figure class="wp-block-embed-reddit wp-block-embed is-type-rich is-provider-reddit">
+<div class="wp-block-embed__wrapper">
+https://www.reddit.com/r/sysadmin/comments/c7shdx/win10_machines_cant_talk_to_wsus_after_may_update/
+</div>
+</figure>
+<p><!-- /wp:core-embed/reddit --></p>
+<p><!-- wp:paragraph --></p>
+<p>上記のURLを参考にして HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate に DisableDualScan=dword:00000001というキーを追加すると問題なくアップデートできるようになった。このキーを追加して前述のコマンドを実行すると Windows Server Update Service      True              True になるようだ。ちなみに、グループポリシーでも同じレジストリを追加することが可能らしいが、検証は行っていない。<a href="https://automationlabo.com/wat/?p=10206">「Windows Update に対するスキャンを発生させる更新遅延ポリシーを許可しない」というグループポリシー</a>が同じレジストリキーに該当する様だ。</p>
+<p><!-- /wp:paragraph --></p>
