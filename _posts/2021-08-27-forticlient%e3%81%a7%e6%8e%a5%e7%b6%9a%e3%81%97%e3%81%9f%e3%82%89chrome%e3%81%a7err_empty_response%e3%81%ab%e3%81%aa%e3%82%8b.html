@@ -1,0 +1,54 @@
+---
+layout: post
+status: publish
+published: true
+title: Forticlientで接続したらChromeでERR_EMPTY_RESPONSEになる
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 436
+wordpress_url: https://blog.akimasa.jp/?p=436
+date: '2021-08-27 20:34:41 +0900'
+date_gmt: '2021-08-27 11:34:41 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><!-- wp:paragraph --></p>
+<p>タイトル通りの現象が起こっていた。<br>結論から言うと、MTUやMSSの設定が不適切のためだった。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><br>FortiClientでFortigateにVPN接続を行ったところ、最初は問題無いのだがしばらくすると、HTTPSでアクセスしていたページを読み込まなくなり、真っ白になるか、ERR_EMPTY_RESPONSEのエラーが出る。ググったらESETが原因の疑いがあるとのことなので切ってみたが、変わらずだった。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>更に調べたところ、FortigateのKnowledge Baseに情報があった。<br>FortiGateのWeb設定画面でもしばらくすると正しく表示されない現象が起きていたので、これの原因を潰していけばもしかしたらと思った。<br><a href="https://kb.fortinet.com/kb/documentLink.do?externalID=FD34688">https://kb.fortinet.com/kb/documentLink.do?externalID=FD34688</a></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>これによれば原因としてはいくつかあるらしい。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>インターフェースでHTTP/HTTPSアクセスを許可しているかについては、最初はアクセスできているので関係ない。<br>trusted hostは設定していないので今回は該当しない。<br>HTTPSのポート設定も変えていないし、サーバ証明書も関係なかった。VIPも違った</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>3) MTU along the pathが今回の原因だった。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>VPN接続を待ち受けているインターフェースのMTUを</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><code>set mtu-override enable</code><br><code>set mtu 1454</code></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>とフレッツに合わせてデフォルトの1500から縮小した。<br>その後は問題無く使えるようになった。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>自宅の回線がフレッツで、FortiClientがうまいこと認識してくれなかったため、会社のインターネット回線のMTU 1500で送られてきてロスでも起きたようだ。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>IPSecだとMTUが大きすぎても勝手に分割とかしてくれないんだろうか。よくわからぬ。</p>
+<p><!-- /wp:paragraph --></p>
