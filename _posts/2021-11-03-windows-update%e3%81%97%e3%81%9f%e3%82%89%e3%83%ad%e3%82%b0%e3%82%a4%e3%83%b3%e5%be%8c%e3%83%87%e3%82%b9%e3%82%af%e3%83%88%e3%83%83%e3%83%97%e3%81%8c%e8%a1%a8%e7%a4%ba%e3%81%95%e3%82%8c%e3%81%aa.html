@@ -1,0 +1,52 @@
+---
+layout: post
+status: publish
+published: true
+title: Windows Updateしたらログイン後デスクトップが表示されない
+author:
+  display_name: akimasa
+  login: akimasa
+  email: akimasa@gmail.com
+  url: ''
+author_login: akimasa
+author_email: akimasa@gmail.com
+wordpress_id: 441
+wordpress_url: https://blog.akimasa.jp/?p=441
+date: '2021-11-03 01:43:59 +0900'
+date_gmt: '2021-11-02 16:43:59 +0900'
+categories:
+- 未分類
+tags: []
+comments: []
+---
+<p><!-- wp:paragraph --></p>
+<p>Linuxネタが多かったが働き始めるようになってからなかなか趣味で触っている暇が無くて書けていない。仕事で遭遇した日本語情報が無い共有できそうなネタが出てきたので書いてみる。自分の書いた記事を改めて読み返すと&hellip;。仕事の関係者が読んだら個人が特定できそうだな。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Windows Updateが当たったらログイン後にExplorerが瞬時に落ちては再起動が繰り返すようになってしまった。デスクトップは一瞬だけ表示されては真っ暗になりを繰り返す状況で全く使い物にならない。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>とりあえずは最新のパッチのKB5006667を消したら解決した。が、すぐに自動適用されて元通りになってしまうし、適用しないとセキュリティ的にもよろしくない。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:embed {"url":"https://askaresh.com/2021/10/19/explorer-exe-keeps-crashing-every-3-seconds-in-windows-10/","type":"link","providerNameSlug":"askaresh","className":""} --></p>
+<figure class="wp-block-embed is-type-link is-provider-askaresh">
+<div class="wp-block-embed__wrapper">
+https://askaresh.com/2021/10/19/explorer-exe-keeps-crashing-every-3-seconds-in-windows-10/
+</div>
+</figure>
+<p><!-- /wp:embed --></p>
+<p><!-- wp:paragraph --></p>
+<p>上記のサイトにKB5006667を消すよりはマシな回避策があった。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p> Computer\HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Feeds\ <br>上記のパスにある次の ShellFeedsTaskbarViewMode キーを2に書き換える。<br>そうすると、ニュースと関心事項が無効化されてExplorerが瞬時に落ちる現象が起こらなくなる。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>早速実行したが、自分の遭遇した問題が起こっている環境ではregeditがドメインユーザーで封じられていた。仕方がないのでwhoami /allコマンドでユーザーのSIDを取得。ローカル管理者にアクセスすることはできるので、runas /user:PC名\ローカル管理者 cmdでとりあえずローカル管理者のコマンドプロンプトを起動。regedit起動したらローカル管理者の管理者権限に昇格したレジストリエディタが起動する。ドメインユーザーのHKEY_CURRENT_USER\はHKEY_USERS\先ほど調べたSID\と同じなので、HKUからドメインユーザーのHKCUにアクセスして書き換えを行った。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>無事に瞬時のExplorer強制終了と再起動は起こらなくなった。</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>そのPCのメインユーザーは問題なく使えるが、別ユーザーが使った際にExplorerが瞬時に起こる現象が再発するので、これはなんとかしたい&hellip;<br></p>
+<p><!-- /wp:paragraph --></p>
